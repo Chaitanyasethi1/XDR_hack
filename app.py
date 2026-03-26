@@ -41,6 +41,7 @@ except Exception:
 st.markdown("""
 <div class="cyber-navbar">
     <div class="nav-left">
+        <div class="menu-btn" style="font-size:1.5rem; cursor:pointer; color:var(--accent-cyan); margin-right:1rem;">☰</div>
         <div class="nav-logo">CIVIC SHIELD</div>
         <div style="font-size:0.7rem; color:var(--text-secondary); opacity:0.6;">v4.0.2 // SECURE_NODE</div>
     </div>

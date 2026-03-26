@@ -49,6 +49,7 @@ h1, h2, h3, .section-header {
 }
 
 .nav-left { display: flex; align-items: center; gap: 1rem; }
+.menu-btn:hover { color: #ffffff !important; text-shadow: 0 0 10px var(--accent-cyan); }
 .nav-logo { font-size: 1.2rem; font-weight: 800; color: var(--accent-cyan); letter-spacing: 1px; }
 
 .nav-right { display: flex; align-items: center; gap: 1.5rem; }
