@@ -3,21 +3,16 @@ import json
 
 def render_3d_globe(incidents_df, height=520):
     """
-    Renders the 3D Threat Globe with LIVE data from the Streamlit session.
+    Renders the 3D Threat Globe with LIVE data and PERFECT CENTERING.
     """
-    # Filter for interesting/high-risk incidents to show on the globe
-    # We take the last 15 incidents to keep the visualization clean but active
     incidents_list = []
     if incidents_df is not None and not incidents_df.empty:
-        # Sort by timestamp to get newest ones
         recent_df = incidents_df.tail(15)
         for _, row in recent_df.iterrows():
             incidents_list.append({
                 "ip": str(row.get('source_ip', '0.0.0.0')),
                 "type": str(row.get('event_type', 'ANOMALY')),
                 "severity": str(row.get('risk_level', 'MEDIUM')),
-                # For demo purposes, we map common attacker regions if lat/lng are missing
-                # In a real system, these would come from a GeoIP lookup on the backend
                 "lat": row.get('lat', 0), 
                 "lng": row.get('lng', 0),
                 "city": str(row.get('city', 'Unknown'))
@@ -34,7 +29,15 @@ def render_3d_globe(incidents_df, height=520):
         <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@700&family=Inter:wght@400;700&display=swap" rel="stylesheet">
         <style>
             body {{ margin: 0; background: #000000; overflow: hidden; font-family: 'Inter', sans-serif; color: #fff; }}
-            #canvas-container {{ width: 100%; height: {height}px; position: relative; cursor: grab; }}
+            #canvas-container {{ 
+                width: 100vw; 
+                height: {height}px; 
+                display: flex; 
+                align-items: center; 
+                justify-content: center; 
+                position: relative; 
+                cursor: grab; 
+            }}
             #canvas-container:active {{ cursor: grabbing; }}
             
             .hud-top {{ position: absolute; top: 15px; left: 15px; pointer-events: none; }}
@@ -44,11 +47,11 @@ def render_3d_globe(incidents_df, height=520):
             @keyframes pulse {{ 0% {{ transform: scale(0.9); opacity: 0.6; }} 50% {{ transform: scale(1.3); opacity: 1; }} 100% {{ transform: scale(0.9); opacity: 0.6; }} }}
 
             .hud-bottom {{ position: absolute; bottom: 15px; left: 15px; right: 15px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; pointer-events: none; }}
-            .stat-card {{ background: rgba(0, 212, 255, 0.05); border: 1px solid rgba(0, 212, 255, 0.2); border-radius: 4px; padding: 12px; text-align: center; backdrop-filter: blur(10px); }}
-            .label {{ font-size: 0.55rem; color: #94a3b8; text-transform: uppercase; letter-spacing: 2px; font-weight: 700; margin-bottom: 4px; }}
-            .value {{ font-family: 'JetBrains Mono', monospace; font-size: 1rem; color: #00d4ff; text-shadow: 0 0 15px rgba(0, 212, 255, 0.4); }}
+            .stat-card {{ background: rgba(0, 212, 255, 0.05); border: 1px solid rgba(0, 212, 255, 0.2); border-radius: 4px; padding: 10px; text-align: center; backdrop-filter: blur(10px); }}
+            .label {{ font-size: 0.5rem; color: #94a3b8; text-transform: uppercase; letter-spacing: 2px; font-weight: 700; margin-bottom: 3px; }}
+            .value {{ font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; color: #00d4ff; text-shadow: 0 0 10px rgba(0, 212, 255, 0.4); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }}
             
-            .active-alert {{ position: absolute; top: 50px; left: 15px; color: #ff3a3a; font-family: 'JetBrains Mono'; font-size: 0.6rem; letter-spacing: 1px; animation: slideIn 0.5s ease; }}
+            .active-alert {{ position: absolute; top: 45px; left: 15px; color: #ff3a3a; font-family: 'JetBrains Mono'; font-size: 0.55rem; letter-spacing: 1px; animation: slideIn 0.5s ease; }}
             @keyframes slideIn {{ from {{ transform: translateX(-20px); opacity:0; }} to {{ transform: translateX(0); opacity:1; }} }}
         </style>
     </head>
@@ -68,17 +71,20 @@ def render_3d_globe(incidents_df, height=520):
 
         <script>
             let scene, camera, renderer, globe, userPos;
+            const container = document.getElementById('canvas-container');
             const radius = 200;
             const incidents = {incidents_json};
 
             function init() {{
                 scene = new THREE.Scene();
-                camera = new THREE.PerspectiveCamera(45, window.innerWidth / {height}, 1, 2000);
-                camera.position.z = 580;
+                const aspect = container.clientWidth / container.clientHeight;
+                camera = new THREE.PerspectiveCamera(40, aspect, 1, 2000);
+                camera.position.z = 520;
 
                 renderer = new THREE.WebGLRenderer({{ antialias: true, alpha: true }});
-                renderer.setSize(window.innerWidth, {height});
-                document.getElementById('canvas-container').appendChild(renderer.domElement);
+                renderer.setSize(container.clientWidth, container.clientHeight);
+                renderer.setPixelRatio(window.devicePixelRatio);
+                container.appendChild(renderer.domElement);
 
                 // Persist Rotation
                 const savedRotation = localStorage.getItem('globe_rotation') || 0;
@@ -122,6 +128,16 @@ def render_3d_globe(incidents_df, height=520):
                 const dLight = new THREE.DirectionalLight(0xffffff, 1);
                 dLight.position.set(5,3,5).normalize();
                 scene.add(dLight);
+                
+                window.addEventListener('resize', onWindowResize);
+            }}
+
+            function onWindowResize() {{
+                const w = container.clientWidth;
+                const h = container.clientHeight;
+                camera.aspect = w / h;
+                camera.updateProjectionMatrix();
+                renderer.setSize(w, h);
             }}
 
             async function detectIP() {{
@@ -130,10 +146,10 @@ def render_3d_globe(incidents_df, height=520):
                     const data = await res.json();
                     document.getElementById('ip-val').innerText = data.ip;
                     userPos = latLngToVector(data.latitude, data.longitude, radius);
-                    addPin(userPos, 0x10b981); // User Pin
+                    addPin(userPos, 0x10b981);
                 }} catch(e) {{
                     document.getElementById('ip-val').innerText = '127.0.0.1';
-                    userPos = latLngToVector(20.5937, 78.9629, radius); // Default India
+                    userPos = latLngToVector(20.5937, 78.9629, radius);
                     addPin(userPos, 0x10b981);
                 }}
             }}
@@ -168,7 +184,6 @@ def render_3d_globe(incidents_df, height=520):
                 incidents.forEach((inc, i) => {{
                     setTimeout(() => {{
                         if(!inc.lat || !inc.lng) {{
-                            // Assign random global locations for incidents without geodata
                             inc.lat = (Math.random() - 0.5) * 140;
                             inc.lng = (Math.random() - 0.5) * 360;
                         }}
@@ -180,6 +195,7 @@ def render_3d_globe(incidents_df, height=520):
             }}
 
             function createArc(lat, lng, color) {{
+                if(!userPos) return;
                 const start = latLngToVector(lat, lng, radius);
                 const end = userPos;
                 const mid = start.clone().lerp(end, 0.5).normalize().multiplyScalar(radius + start.distanceTo(end)*0.4);
