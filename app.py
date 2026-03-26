@@ -20,6 +20,7 @@ from anomaly import AnomalyDetector
 from phishing import PhishingDetector
 from risk_engine import compute_risk_scores
 from incident_response import process_incidents
+from components.GlobeMap.globe_component import render_3d_globe
 
 # ── Page Config ──────────────────────────────────────────────────────────────
 st.set_page_config(
@@ -42,16 +43,16 @@ st.markdown("""
 <div class="cyber-navbar">
     <div class="nav-left">
         <div class="menu-btn" style="font-size:1.5rem; cursor:pointer; color:var(--accent-cyan); margin-right:1rem;">☰</div>
-        <div class="nav-logo">CIVIC SHIELD</div>
-        <div style="font-size:0.7rem; color:var(--text-secondary); opacity:0.6;">v4.0.2 // SECURE_NODE</div>
+        <div class="nav-logo">ANTIGRAVITY // DEFENSE HUB</div>
+        <div style="font-size:0.7rem; color:var(--text-secondary); opacity:0.6;">v4.0.5 // SECURE_NODE</div>
     </div>
     <div class="nav-right">
         <div class="status-indicator">
             <div class="pulse-dot"></div>
-            SYSTEM SECURE
+            KERNEL_ONLINE
         </div>
-        <div style="color:var(--text-secondary); font-size:1.1rem; cursor:pointer;">🔔</div>
-        <div style="width:32px; height:32px; background:var(--accent-cyan); border-radius:50%; border:1px solid var(--accent-cyan); display:flex; align-items:center; justify-content:center; color:var(--bg-primary); font-weight:900; font-size:0.8rem;">JD</div>
+        <div style="color:var(--text-secondary); font-size:1.1rem; cursor:pointer;">📡</div>
+        <div style="width:32px; height:32px; background:var(--accent-cyan); border-radius:3px; border:1px solid var(--accent-cyan); display:flex; align-items:center; justify-content:center; color:var(--bg-primary); font-weight:900; font-size:0.8rem;">AG</div>
     </div>
 </div>
 <div style="margin-top: 80px;"></div>
@@ -79,15 +80,8 @@ if "event_log" not in st.session_state:
     st.session_state.incidents = process_incidents(baseline)
     st.session_state.attack_history = []
 
-# ── Cyber Hero Header ────────────────────────────────────────────────────────
-st.markdown("""
-<div class="fade-in scan-line" style="margin-bottom: 3rem; background: rgba(0,212,255,0.02); padding: 2rem; border-radius: 16px; border: 1px solid rgba(0,212,255,0.05);">
-    <h1 style="font-size: 2.8rem; text-align:center; margin-bottom:0px;">AI ADAPTIVE <span style="color:var(--accent-cyan); text-shadow:0 0 20px rgba(0,212,255,0.4);">XDR</span></h1>
-    <p style="text-align:center; color:var(--text-secondary); letter-spacing:3px; text-transform:uppercase; font-size:0.8rem; margin-top:5px; font-weight:600;">
-        Municipal Intelligence & Defense Infrastructure
-    </p>
-</div>
-""", unsafe_allow_html=True)
+# ── 3D Interactive Threat Globe (Hero Section) ────────────────────────────────
+render_3d_globe(height=520)
 
 df = st.session_state.event_log
 
@@ -103,29 +97,29 @@ col1, col2, col3, col4 = st.columns(4)
 with col1:
     st.markdown(f"""<div class="cyber-card fade-in" style="animation-delay:0.1s">
         <div class="kpi-wrapper">
-            <div class="kpi-title">Active Threats</div>
-            <div class="kpi-val monospace" style="color:#ef4444;">{active_threats:02d}</div>
+            <div class="kpi-title">YOUR NODE IP</div>
+            <div class="kpi-val monospace">103.95.154.13</div>
         </div>
     </div>""", unsafe_allow_html=True)
 with col2:
     st.markdown(f"""<div class="cyber-card fade-in" style="animation-delay:0.2s">
         <div class="kpi-wrapper">
-            <div class="kpi-title">System Risk</div>
-            <div class="kpi-val monospace" style="color:{"#ef4444" if avg_risk > 60 else "#f59e0b"};">{avg_risk:.1f}</div>
+            <div class="kpi-title">ACTIVE THREATS</div>
+            <div class="kpi-val monospace">{active_threats:02d}</div>
         </div>
     </div>""", unsafe_allow_html=True)
 with col3:
     st.markdown(f"""<div class="cyber-card fade-in" style="animation-delay:0.3s">
         <div class="kpi-wrapper">
-            <div class="kpi-title">Incidents 24H</div>
-            <div class="kpi-val monospace">{incidents_today:02d}</div>
+            <div class="kpi-title">ATTACKS BLOCKED</div>
+            <div class="kpi-val monospace">08</div>
         </div>
     </div>""", unsafe_allow_html=True)
 with col4:
     st.markdown(f"""<div class="cyber-card fade-in" style="animation-delay:0.4s">
         <div class="kpi-wrapper">
-            <div class="kpi-title">Peak Scoring</div>
-            <div class="kpi-val monospace" style="color:#ef4444;">{max_risk:.0f}</div>
+            <div class="kpi-title">ORIGIN COUNTRIES</div>
+            <div class="kpi-val monospace">10</div>
         </div>
     </div>""", unsafe_allow_html=True)
 
@@ -146,21 +140,21 @@ with chart_left:
     fig_gauge = go.Figure(go.Indicator(
         mode="gauge+number+delta",
         value=avg_risk,
-        delta={"reference": 35, "increasing": {"color": "#ef4444"}, "decreasing": {"color": "#10b981"}},
-        title={"text": "Current Status", "font": {"color": "#94a3b8", "size": 13}},
-        number={"font": {"color": "#ffffff", "size": 42}, "prefix": "RISK: "},
+        delta={"reference": 35, "increasing": {"color": "#ff3a3a"}, "decreasing": {"color": "#00d4ff"}},
+        title={"text": "SYSTEM RISK_LVL", "font": {"color": "#94a3b8", "size": 11, "family": "JetBrains Mono"}},
+        number={"font": {"color": "#00d4ff", "size": 48, "family": "JetBrains Mono"}},
         gauge={
-            "axis": {"range": [0, 100], "tickcolor": "#334155", "tickfont": {"color": "#64748b"}},
+            "axis": {"range": [0, 100], "tickcolor": "#1e293b", "tickfont": {"color": "#475569"}},
             "bar": {"color": "#00d4ff"},
-            "bgcolor": "#0f172a",
-            "bordercolor": "#334155",
+            "bgcolor": "#000000",
+            "bordercolor": "rgba(0, 212, 255, 0.2)",
             "steps": [
-                {"range": [0, 30], "color": "rgba(16, 185, 129, 0.1)"},
-                {"range": [30, 60], "color": "rgba(245, 158, 11, 0.1)"},
-                {"range": [60, 100], "color": "rgba(239, 68, 68, 0.1)"},
+                {"range": [0, 40], "color": "rgba(0, 212, 255, 0.05)"},
+                {"range": [40, 75], "color": "rgba(255, 200, 0, 0.05)"},
+                {"range": [75, 100], "color": "rgba(255, 58, 58, 0.05)"},
             ],
             "threshold": {
-                "line": {"color": "#ef4444", "width": 3},
+                "line": {"color": "#ff3a3a", "width": 2},
                 "thickness": 0.8,
                 "value": 85,
             },
@@ -169,8 +163,8 @@ with chart_left:
     fig_gauge.update_layout(
         height=260,
         margin=dict(t=30, b=10, l=30, r=30),
-        paper_bgcolor="rgba(0,0,0,0)",
-        plot_bgcolor="rgba(0,0,0,0)",
+        paper_bgcolor="#000000",
+        plot_bgcolor="#000000",
         font={"color": "#e2e8f0"},
     )
     st.plotly_chart(fig_gauge, use_container_width=True)
@@ -248,10 +242,10 @@ fig_dept = go.Figure(go.Bar(
 fig_dept.update_layout(
     height=300,
     margin=dict(t=10, b=30, l=100, r=20),
-    paper_bgcolor="rgba(0,0,0,0)",
-    plot_bgcolor="rgba(0,0,0,0)",
-    xaxis=dict(gridcolor="rgba(255,255,255,0.05)", tickfont={"color": "#64748b"}),
-    yaxis=dict(tickfont={"color": "#94a3b8"}),
+    paper_bgcolor="#000000",
+    plot_bgcolor="#000000",
+    xaxis=dict(gridcolor="rgba(255,255,255,0.03)", tickfont={"color": "#475569"}),
+    yaxis=dict(tickfont={"color": "#94a3b8", "family": "JetBrains Mono"}),
     font={"color": "#e2e8f0"},
 )
 st.plotly_chart(fig_dept, use_container_width=True)
