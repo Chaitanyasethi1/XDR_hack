@@ -31,7 +31,7 @@ def render_3d_globe(height=520):
     <body>
         <div id="canvas-container">
             <div class="hud-top">
-                <div class="wordmark">ANTIGRAVITY // <span class="live-badge"><div class="pulse-dot"></div> LIVE MONITORING</span></div>
+                <div class="wordmark">CIVIC SHIELD // <span class="live-badge"><div class="pulse-dot"></div> LIVE MONITORING</span></div>
             </div>
             <div class="hud-bottom">
                 <div class="stat-card"><div class="label">YOUR IP</div><div id="ip-val" class="value">DETECTING...</div></div>

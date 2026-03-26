@@ -43,7 +43,7 @@ st.markdown("""
 <div class="cyber-navbar">
     <div class="nav-left">
         <div class="menu-btn" style="font-size:1.5rem; cursor:pointer; color:var(--accent-cyan); margin-right:1rem;">☰</div>
-        <div class="nav-logo">ANTIGRAVITY // DEFENSE HUB</div>
+        <div class="nav-logo">CIVIC SHIELD // XDR</div>
         <div style="font-size:0.7rem; color:var(--text-secondary); opacity:0.6;">v4.0.5 // SECURE_NODE</div>
     </div>
     <div class="nav-right">
