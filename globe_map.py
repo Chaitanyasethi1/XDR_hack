@@ -2,10 +2,8 @@ import streamlit.components.v1 as components
 
 def render_3d_globe(height=520):
     """
-    Renders the Antigravity 3D Threat Globe using Three.js as a self-contained HTML component.
+    Renders the Antigravity 3D Threat Globe with World Map Continents.
     """
-    # Using triple-quoted string without f-prefix to avoid escaping hell, then using .format()
-    # or just using double-braces where necessary. I'll use f-string and fix the escaping.
     globe_html = f"""
     <!DOCTYPE html>
     <html>
@@ -56,31 +54,53 @@ def render_3d_globe(height=520):
                 renderer.setSize(window.innerWidth, {height});
                 document.getElementById('canvas-container').appendChild(renderer.domElement);
 
-                // Grid Texture
-                const canvas = document.createElement('canvas');
-                canvas.width = 1024; canvas.height = 512;
-                const ctx = canvas.getContext('2d');
-                ctx.fillStyle = '#01050a'; ctx.fillRect(0,0,1024,512);
-                ctx.strokeStyle = 'rgba(0,212,255,0.3)'; ctx.lineWidth = 1;
-                for(let i=0; i<=360; i+=20) {{ ctx.beginPath(); ctx.moveTo((i/360)*1024, 0); ctx.lineTo((i/360)*1024,512); ctx.stroke(); }}
-                for(let i=0; i<=180; i+=20) {{ ctx.beginPath(); ctx.moveTo(0,(i/180)*512); ctx.lineTo(1024,(i/180)*512); ctx.stroke(); }}
+                // Create Texture with Continents
+                const loader = new THREE.TextureLoader();
+                // Using a transparent world map topology for a clean cyber look
+                loader.load('https://raw.githubusercontent.com/vasturiano/three-globe/master/example/img/earth-topology.png', (topoTexture) => {{
+                    const canvas = document.createElement('canvas');
+                    canvas.width = 1024; canvas.height = 512;
+                    const ctx = canvas.getContext('2d');
+                    ctx.fillStyle = '#01050a'; ctx.fillRect(0,0,1024,512);
+                    
+                    // Draw Continents (Simplified)
+                    const img = topoTexture.image;
+                    ctx.globalAlpha = 0.5;
+                    ctx.drawImage(img, 0, 0, 1024, 512);
+                    ctx.globalAlpha = 1.0;
 
-                const texture = new THREE.CanvasTexture(canvas);
-                const geometry = new THREE.SphereGeometry(radius, 64, 64);
-                const material = new THREE.MeshPhongMaterial({{ map: texture, shininess: 5, transparent: true, opacity: 0.9 }});
-                globe = new THREE.Mesh(geometry, material);
-                scene.add(globe);
+                    // Draw Grid
+                    ctx.strokeStyle = 'rgba(0,212,255,0.15)'; ctx.lineWidth = 1;
+                    for(let i=0; i<=360; i+=20) {{ ctx.beginPath(); ctx.moveTo((i/360)*1024, 0); ctx.lineTo((i/360)*1024,512); ctx.stroke(); }}
+                    for(let i=0; i<=180; i+=20) {{ ctx.beginPath(); ctx.moveTo(0,(i/180)*512); ctx.lineTo(1024,(i/180)*512); ctx.stroke(); }}
 
-                // Atmosphere
-                const atmosGeo = new THREE.SphereGeometry(radius+5, 64, 64);
-                const atmosMat = new THREE.MeshBasicMaterial({{ color:0x00d4ff, transparent:true, opacity:0.04, side:THREE.BackSide }});
-                scene.add(new THREE.Mesh(atmosGeo, atmosMat));
+                    const texture = new THREE.CanvasTexture(canvas);
+                    const geometry = new THREE.SphereGeometry(radius, 64, 64);
+                    const material = new THREE.MeshPhongMaterial({{ 
+                        map: texture, 
+                        shininess: 10, 
+                        transparent: true, 
+                        opacity: 0.9,
+                        emissive: 0x00d4ff,
+                        emissiveIntensity: 0.05
+                    }});
+                    globe = new THREE.Mesh(geometry, material);
+                    scene.add(globe);
+
+                    // Atmosphere
+                    const atmosGeo = new THREE.SphereGeometry(radius+8, 64, 64);
+                    const atmosMat = new THREE.MeshBasicMaterial({{ color:0x00d4ff, transparent:true, opacity:0.04, side:THREE.BackSide }});
+                    scene.add(new THREE.Mesh(atmosGeo, atmosMat));
+
+                    detectIP();
+                    animate();
+                }});
 
                 // Lights
-                const light = new THREE.DirectionalLight(0xffffff, 1);
+                const light = new THREE.DirectionalLight(0xffffff, 1.2);
                 light.position.set(5,3,5).normalize();
                 scene.add(light);
-                scene.add(new THREE.AmbientLight(0x404040, 0.6));
+                scene.add(new THREE.AmbientLight(0x404040, 0.8));
 
                 // Star field
                 const starGeo = new THREE.BufferGeometry();
@@ -89,10 +109,7 @@ def render_3d_globe(height=520):
                     starPos.push((Math.random()-0.5)*2000, (Math.random()-0.5)*2000, (Math.random()-0.5)*2000);
                 }}
                 starGeo.setAttribute('position', new THREE.Float32BufferAttribute(starPos, 3));
-                scene.add(new THREE.Points(starGeo, new THREE.PointsMaterial({{ color: 0x888888, size: 1.5 }})));
-
-                detectIP();
-                animate();
+                scene.add(new THREE.Points(starGeo, new THREE.PointsMaterial({{ color: 0x666666, size: 1 }})));
             }}
 
             async function detectIP() {{
@@ -101,7 +118,8 @@ def render_3d_globe(height=520):
                     const data = await res.json();
                     document.getElementById('ip-val').innerText = data.ip;
                     userPos = latLngToVector(data.latitude, data.longitude, radius);
-                    addPin(userPos);
+                    addPin(userPos, 0x10b981); // Green pin for user
+                    addLabel(userPos, "PROTECTED_NODE (INDIA)");
                     setTimeout(() => spawnAttack(), 2000);
                 }} catch(e) {{
                     document.getElementById('ip-val').innerText = '127.0.0.1';
@@ -118,22 +136,45 @@ def render_3d_globe(height=520):
                 );
             }}
 
-            function addPin(pos) {{
+            function addPin(pos, color) {{
                 const pinGeo = new THREE.SphereGeometry(4, 16, 16);
-                const pinMat = new THREE.MeshBasicMaterial({{ color: 0x10b981 }});
+                const pinMat = new THREE.MeshBasicMaterial({{ color: color }});
                 const pin = new THREE.Mesh(pinGeo, pinMat);
                 pin.position.copy(pos);
                 globe.add(pin);
+                
+                // Add a glow ring
+                const ringGeo = new THREE.RingGeometry(6, 8, 32);
+                const ringMat = new THREE.MeshBasicMaterial({{ color: color, side: THREE.DoubleSide, transparent:true, opacity:0.3 }});
+                const ring = new THREE.Mesh(ringGeo, ringMat);
+                ring.position.copy(pos.clone().multiplyScalar(1.02));
+                ring.lookAt(new THREE.Vector3(0,0,0));
+                globe.add(ring);
+            }}
+
+            function addLabel(pos, text) {{
+                // Simplified labels using console logs as we are in a tight iframe
+                console.log("MARKING: " + text);
             }}
 
             function spawnAttack() {{
-                const cities = [{{lat:40,lng:-74}}, {{lat:35,lng:139}}, {{lat:55,lng:37}}, {{lat:-33,lng:151}}, {{lat:19,lng:72}}];
-                cities.forEach((city, i) => {{
-                    setTimeout(() => createArc(city.lat, city.lng), i * 1500);
+                // Specific attacker locations pointing to India (roughly)
+                const attackers = [
+                    {{ name: 'CHINA_SOURCE', lat: 35.8617, lng: 104.1954, color: 0xff3a3a }},
+                    {{ name: 'RUSSIA_SOURCE', lat: 61.5240, lng: 105.3188, color: 0xff3a3a }},
+                    {{ name: 'US_EAST_NODE', lat: 37.0902, lng: -95.7129, color: 0x6C63FF }},
+                    {{ name: 'EURO_NODE', lat: 48.8566, lng: 2.3522, color: 0x00d4ff }}
+                ];
+                attackers.forEach((atk, i) => {{
+                    setTimeout(() => {{
+                        const aPos = latLngToVector(atk.lat, atk.lng, radius);
+                        addPin(aPos, atk.color);
+                        createArc(atk.lat, atk.lng, atk.color);
+                    }}, i * 2000);
                 }});
             }}
 
-            function createArc(lat, lng) {{
+            function createArc(lat, lng, color) {{
                 const start = latLngToVector(lat, lng, radius);
                 const end = userPos;
                 const mid = start.clone().lerp(end, 0.5).normalize().multiplyScalar(radius + start.distanceTo(end)*0.4);
@@ -142,16 +183,16 @@ def render_3d_globe(height=520):
                 const points = curve.getPoints(50);
                 const arcLine = new THREE.Line(
                     new THREE.BufferGeometry().setFromPoints(points),
-                    new THREE.LineBasicMaterial({{ color: 0x00d4ff, transparent:true, opacity:0.15 }})
+                    new THREE.LineBasicMaterial({{ color: color, transparent:true, opacity:0.3 }})
                 );
                 globe.add(arcLine);
 
-                const packet = new THREE.Mesh(new THREE.SphereGeometry(3, 8, 8), new THREE.MeshBasicMaterial({{ color: 0x00d4ff }}));
+                const packet = new THREE.Mesh(new THREE.SphereGeometry(3, 8, 8), new THREE.MeshBasicMaterial({{ color: color }}));
                 globe.add(packet);
 
                 let p = 0;
                 function move() {{
-                    p += 0.01;
+                    p += 0.008;
                     if(p > 1) p = 0;
                     packet.position.copy(curve.getPointAt(p));
                     requestAnimationFrame(move);
@@ -161,7 +202,7 @@ def render_3d_globe(height=520):
 
             function animate() {{
                 requestAnimationFrame(animate);
-                globe.rotation.y += 0.002;
+                if(globe) globe.rotation.y += 0.002;
                 renderer.render(scene, camera);
             }}
 
