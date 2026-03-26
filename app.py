@@ -20,7 +20,7 @@ from anomaly import AnomalyDetector
 from phishing import PhishingDetector
 from risk_engine import compute_risk_scores
 from incident_response import process_incidents
-from components.GlobeMap.globe_component import render_3d_globe
+from globe_map import render_3d_globe
 
 # ── Page Config ──────────────────────────────────────────────────────────────
 st.set_page_config(
