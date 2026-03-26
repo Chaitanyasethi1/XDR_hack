@@ -4,64 +4,76 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Civic Cyber Shield | Intelligence Portal</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@stlite/mountable@0.58.1/build/stlite.css" />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <!-- CSS is first in head to ensure zero-blink of native loader -->
     <style>
-        /* Hide Stlite Native Loading Elements */
-        #stlite-main-loading, .stlite-kernel-status { display: none !important; }
+        /* CRITICAL: Block all native Streamlit/Stlite loading elements permanently */
+        #stlite-main-loading, 
+        .stlite-kernel-status, 
+        #loading-screen, 
+        .stLoading,
+        .st-emotion-cache-16ids0d, 
+        div[data-testid="stStatusWidget"] { 
+            display: none !important; 
+            visibility: hidden !important;
+            opacity: 0 !important;
+            pointer-events: none !important;
+        }
 
         body, html { margin: 0; padding: 0; background: #0f172a; color: #f8fafc; font-family: 'Inter', sans-serif; height: 100%; overflow: hidden; }
         
+        /* Intro Screen - Highest Priority */
         #intro-screen {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: #0f172a; display: flex; flex-direction: column;
-            justify-content: center; align-items: center; z-index: 100000; /* Super High Z-Index */
-            transition: opacity 1.2s ease, transform 1s ease;
+            justify-content: center; align-items: center; z-index: 9999999;
+            transition: opacity 1.2s ease, transform 1s cubic-bezier(0.77, 0, 0.175, 1);
         }
 
         .info-card {
-            max-width: 500px; background: rgba(30, 41, 59, 0.4);
+            max-width: 500px; background: rgba(30, 41, 59, 0.6);
             border: 1px solid rgba(255,255,255,0.05); border-radius: 20px;
-            padding: 40px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5);
-            text-align: center;
+            padding: 40px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.6);
+            text-align: center; backdrop-filter: blur(10px);
         }
 
-        h1 { font-size: 2.2rem; font-weight: 800; margin-bottom: 5px; color: #ffffff; letter-spacing: -1px; }
+        h1 { font-size: 2.2rem; font-weight: 800; margin-bottom: 5px; color: #ffffff; }
         .tagline { color: #3b82f6; font-weight: 700; text-transform: uppercase; letter-spacing: 2px; font-size: 0.75rem; margin-bottom: 30px; }
         
-        .feature-list { text-align: left; margin: 25px 0; color: #94a3b8; font-size: 0.9rem; }
-        .feature-item { margin-bottom: 12px; display: flex; align-items: center; border-left: 3px solid #3b82f6; padding-left: 15px; }
+        .feature-list { text-align: left; margin: 25px 0; color: #94a3b8; font-size: 0.95rem; }
+        .feature-item { margin-bottom: 15px; display: flex; align-items: center; box-shadow: inset 2px 0 0 #3b82f6; padding-left: 15px; }
 
         .loader-container { margin-top: 40px; }
-        .progress-track { width: 100%; height: 4px; background: rgba(255,255,255,0.05); border-radius: 10px; overflow: hidden; }
-        .progress-bar { width: 0%; height: 100%; background: #3b82f6; animation: grow 12s linear forwards; }
-        @keyframes grow { from { width: 0%; } to { width: 90%; } }
+        .progress-track { width: 100%; height: 3px; background: rgba(255,255,255,0.05); border-radius: 5px; overflow: hidden; }
+        .progress-bar { width: 0%; height: 100%; background: #3b82f6; animation: fillProgress 15s forwards ease-out; }
+        @keyframes fillProgress { 0% { width: 0%; } 100% { width: 95%; } }
         
         .loading-text { font-size: 0.7rem; color: #64748b; letter-spacing: 1px; margin-top: 15px; text-transform: uppercase; }
 
-        #root { opacity: 0; transition: opacity 1.5s ease; width: 100%; height: 100vh; }
+        #root { opacity: 0; transition: opacity 1s ease; width: 100%; height: 100vh; position: relative; z-index: 1; }
         
-        /* Transition to Ready */
-        .ready #intro-screen { opacity: 0; pointer-events: none; transform: translateY(-100%); }
+        /* Entrance Effect */
+        .ready #intro-screen { transform: translateY(-100%); opacity: 0; }
         .ready #root { opacity: 1; }
     </style>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@stlite/mountable@0.58.1/build/stlite.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
 </head>
 <body>
     <div id="intro-screen">
         <div class="info-card">
             <h1>CIVIC SHIELD</h1>
-            <div class="tagline">Defense Intelligence Node</div>
+            <div class="tagline">Next-Gen Cyber Protocol</div>
             
             <div class="feature-list">
-                <div class="feature-item">AI Anomaly Recognition Protocol</div>
-                <div class="feature-item">Global Phishing Threat Intelligence</div>
-                <div class="feature-item">Critical Risk Modeling Engine</div>
-                <div class="feature-item">Automated Attack Simulation Console</div>
+                <div class="feature-item">Global Anomaly Monitoring</div>
+                <div class="feature-item">Advanced Phishing Neural Analysis</div>
+                <div class="feature-item">Infrastructure Threat Intelligence</div>
+                <div class="feature-item">Strategic Response Automation</div>
             </div>
 
             <div class="loader-container">
                 <div class="progress-track"><div class="progress-bar"></div></div>
-                <div class="loading-text">Synchronizing Secure Protocols...</div>
+                <div class="loading-text">Synchronizing Intelligence Node...</div>
             </div>
         </div>
     </div>
@@ -83,15 +95,18 @@
             },
         }, document.getElementById("root"));
 
-        // DETECT DASHBOARD READY: Hide intro when Streamlit is active
-        const interval = setInterval(() => {
+        // SUPER OBSERVER: detect the absolute moment the app appears
+        const appCheck = setInterval(() => {
             if (document.querySelector('.stApp')) {
-                clearInterval(interval);
+                clearInterval(appCheck);
+                // Reveal App
                 setTimeout(() => {
                     document.body.classList.add('ready');
-                }, 800);
+                    // Manual trigger for chart resize
+                    window.dispatchEvent(new Event('resize'));
+                }, 500);
             }
-        }, 100);
+        }, 50);
     </script>
 </body>
 </html>
