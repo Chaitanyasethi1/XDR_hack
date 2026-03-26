@@ -55,6 +55,7 @@
         .ready #intro-screen { transform: translateY(-100%); opacity: 0; }
         .ready #root { opacity: 1; }
     </style>
+    <link rel="stylesheet" href="cyber-theme.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@stlite/mountable@0.58.1/build/stlite.css" />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
 </head>
@@ -87,6 +88,7 @@
             entrypoint: "app.py",
             files: {
                 "app.py": { url: "./app.py" },
+                "cyber-theme.css": { url: "./cyber-theme.css" },
                 "anomaly.py": { url: "./anomaly.py" },
                 "phishing.py": { url: "./phishing.py" },
                 "risk_engine.py": { url: "./risk_engine.py" },

@@ -29,99 +29,31 @@ st.set_page_config(
     initial_sidebar_state="collapsed",
 )
 
-# ── Professional Slate UI CSS ────────────────────────────────────────────────
+# ── Cyber Aesthetic Injection ───────────────────────────────────────────────
+try:
+    with open("cyber-theme.css", "r") as f:
+        theme_css = f.read()
+        st.markdown(f"<style>{theme_css}</style>", unsafe_allow_html=True)
+except Exception:
+    pass
+
+# ── Sticky Navbar ────────────────────────────────────────────────────────────
 st.markdown("""
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-
-<style>
-    /* Global Styles */
-    .stApp {
-        background-color: #0f172a;
-        color: #f8fafc;
-        font-family: 'Inter', sans-serif;
-    }
-    
-    [data-testid="stHeader"] {
-        background: #0f172a !important;
-    }
-
-    .main-title {
-        text-align: center;
-        font-size: 2.2rem;
-        font-weight: 700;
-        color: #ffffff;
-        padding: 1.5rem 0 0.5rem 0;
-    }
-    
-    .sub-title {
-        text-align: center;
-        font-size: 0.85rem;
-        color: #94a3b8;
-        margin-bottom: 2rem;
-        text-transform: uppercase;
-        font-weight: 500;
-        letter-spacing: 1px;
-    }
-
-    /* Professional Metric Cards */
-    .kpi-card {
-        background: #1e293b;
-        border: 1px solid #334155;
-        border-radius: 8px;
-        padding: 1.2rem;
-        text-align: center;
-    }
-    
-    .kpi-value {
-        font-size: 2.2rem;
-        font-weight: 700;
-        margin-bottom: 0px;
-    }
-
-    .kpi-label {
-        font-size: 0.7rem;
-        color: #94a3b8;
-        text-transform: uppercase;
-        font-weight: 600;
-    }
-
-    /* Signal Colors */
-    .kpi-critical { color: #ef4444; }
-    .kpi-warn { color: #f59e0b; }
-    .kpi-ok { color: #10b981; }
-    .kpi-cyan { color: #3b82f6; }
-
-    /* Section Headers */
-    .section-header {
-        font-size: 1rem;
-        font-weight: 600;
-        color: #f8fafc;
-        border-bottom: 1px solid #334155;
-        padding-bottom: 0.5rem;
-        margin: 2rem 0 1rem 0;
-    }
-
-    /* Buttons */
-    div.stButton > button {
-        background-color: #1e293b;
-        color: #f1f5f9;
-        border: 1px solid #334155;
-        border-radius: 6px;
-        padding: 0.5rem 1rem;
-        font-weight: 500;
-    }
-
-    div.stButton > button:hover {
-        background-color: #334155;
-        color: #ffffff;
-    }
-
-    /* Containers */
-    div[data-testid="stExpander"] { background: #1e293b; border: 1px solid #334155; }
-    div[data-testid="stDataFrame"] { background: #1e293b; border: 1px solid #334155; }
-</style>
+<div class="cyber-navbar">
+    <div class="nav-left">
+        <div class="nav-logo">CIVIC SHIELD</div>
+        <div style="font-size:0.7rem; color:var(--text-secondary); opacity:0.6;">v4.0.2 // SECURE_NODE</div>
+    </div>
+    <div class="nav-right">
+        <div class="status-indicator">
+            <div class="pulse-dot"></div>
+            SYSTEM SECURE
+        </div>
+        <div style="color:var(--text-secondary); font-size:1.1rem; cursor:pointer;">🔔</div>
+        <div style="width:32px; height:32px; background:var(--accent-cyan); border-radius:50%; border:1px solid var(--accent-cyan); display:flex; align-items:center; justify-content:center; color:var(--bg-primary); font-weight:900; font-size:0.8rem;">JD</div>
+    </div>
+</div>
+<div style="margin-top: 80px;"></div>
 """, unsafe_allow_html=True)
 
 # ── Initialize Models (cached) ──────────────────────────────────────────────
@@ -146,9 +78,15 @@ if "event_log" not in st.session_state:
     st.session_state.incidents = process_incidents(baseline)
     st.session_state.attack_history = []
 
-# ── Header ───────────────────────────────────────────────────────────────────
-st.markdown('<div class="main-title">AI Adaptive XDR – Civic Cyber Shield</div>', unsafe_allow_html=True)
-st.markdown('<div class="sub-title">Municipal Extended Detection & Response • Real-Time AI Threat Intelligence</div>', unsafe_allow_html=True)
+# ── Cyber Hero Header ────────────────────────────────────────────────────────
+st.markdown("""
+<div class="fade-in scan-line" style="margin-bottom: 3rem; background: rgba(0,212,255,0.02); padding: 2rem; border-radius: 16px; border: 1px solid rgba(0,212,255,0.05);">
+    <h1 style="font-size: 2.8rem; text-align:center; margin-bottom:0px;">AI ADAPTIVE <span style="color:var(--accent-cyan); text-shadow:0 0 20px rgba(0,212,255,0.4);">XDR</span></h1>
+    <p style="text-align:center; color:var(--text-secondary); letter-spacing:3px; text-transform:uppercase; font-size:0.8rem; margin-top:5px; font-weight:600;">
+        Municipal Intelligence & Defense Infrastructure
+    </p>
+</div>
+""", unsafe_allow_html=True)
 
 df = st.session_state.event_log
 
@@ -162,24 +100,32 @@ risk_color = "kpi-critical" if avg_risk > 60 else ("kpi-warn" if avg_risk > 35 e
 
 col1, col2, col3, col4 = st.columns(4)
 with col1:
-    st.markdown(f"""<div class="kpi-card">
-        <div class="kpi-value kpi-critical">{active_threats}</div>
-        <div class="kpi-label">Active Threats</div>
+    st.markdown(f"""<div class="cyber-card fade-in" style="animation-delay:0.1s">
+        <div class="kpi-wrapper">
+            <div class="kpi-title">Active Threats</div>
+            <div class="kpi-val monospace" style="color:#ef4444;">{active_threats:02d}</div>
+        </div>
     </div>""", unsafe_allow_html=True)
 with col2:
-    st.markdown(f"""<div class="kpi-card">
-        <div class="kpi-value {risk_color}">{avg_risk:.1f}</div>
-        <div class="kpi-label">Avg Risk Score</div>
+    st.markdown(f"""<div class="cyber-card fade-in" style="animation-delay:0.2s">
+        <div class="kpi-wrapper">
+            <div class="kpi-title">System Risk</div>
+            <div class="kpi-val monospace" style="color:{"#ef4444" if avg_risk > 60 else "#f59e0b"};">{avg_risk:.1f}</div>
+        </div>
     </div>""", unsafe_allow_html=True)
 with col3:
-    st.markdown(f"""<div class="kpi-card">
-        <div class="kpi-value kpi-warn">{incidents_today}</div>
-        <div class="kpi-label">Incidents Today</div>
+    st.markdown(f"""<div class="cyber-card fade-in" style="animation-delay:0.3s">
+        <div class="kpi-wrapper">
+            <div class="kpi-title">Incidents 24H</div>
+            <div class="kpi-val monospace">{incidents_today:02d}</div>
+        </div>
     </div>""", unsafe_allow_html=True)
 with col4:
-    st.markdown(f"""<div class="kpi-card">
-        <div class="kpi-value kpi-critical">{max_risk:.0f}</div>
-        <div class="kpi-label">Peak Risk Score</div>
+    st.markdown(f"""<div class="cyber-card fade-in" style="animation-delay:0.4s">
+        <div class="kpi-wrapper">
+            <div class="kpi-title">Peak Scoring</div>
+            <div class="kpi-val monospace" style="color:#ef4444;">{max_risk:.0f}</div>
+        </div>
     </div>""", unsafe_allow_html=True)
 
 st.markdown("")
@@ -188,43 +134,56 @@ st.markdown("")
 chart_left, chart_right = st.columns([1, 1])
 
 with chart_left:
-    st.markdown('<div class="section-header">Risk Gauge</div>', unsafe_allow_html=True)
+    st.markdown("""
+    <div class="chart-container fade-in" style="animation-delay:0.5s">
+        <div class="chart-header">
+            <div class="chart-title"><span>📡</span> System Risk Gauge</div>
+            <div class="live-badge"><div class="pulse-dot" style="width:6px; height:6px;"></div> LIVE</div>
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
     fig_gauge = go.Figure(go.Indicator(
         mode="gauge+number+delta",
         value=avg_risk,
-        delta={"reference": 35, "increasing": {"color": "#ff2d55"}, "decreasing": {"color": "#00e676"}},
-        title={"text": "System Risk Level", "font": {"color": "#8892a0", "size": 14}},
-        number={"font": {"color": "#e0e6ed", "size": 40}},
+        delta={"reference": 35, "increasing": {"color": "#ef4444"}, "decreasing": {"color": "#10b981"}},
+        title={"text": "Current Status", "font": {"color": "#94a3b8", "size": 13}},
+        number={"font": {"color": "#ffffff", "size": 42}, "prefix": "RISK: "},
         gauge={
-            "axis": {"range": [0, 100], "tickcolor": "#3a4a5a", "tickfont": {"color": "#6b7b8d"}},
+            "axis": {"range": [0, 100], "tickcolor": "#334155", "tickfont": {"color": "#64748b"}},
             "bar": {"color": "#00d4ff"},
-            "bgcolor": "#121929",
-            "bordercolor": "#1e2d3d",
+            "bgcolor": "#0f172a",
+            "bordercolor": "#334155",
             "steps": [
-                {"range": [0, 30], "color": "#0a2e1a"},
-                {"range": [30, 55], "color": "#2e2a0a"},
-                {"range": [55, 75], "color": "#2e1a0a"},
-                {"range": [75, 100], "color": "#2e0a0f"},
+                {"range": [0, 30], "color": "rgba(16, 185, 129, 0.1)"},
+                {"range": [30, 60], "color": "rgba(245, 158, 11, 0.1)"},
+                {"range": [60, 100], "color": "rgba(239, 68, 68, 0.1)"},
             ],
             "threshold": {
-                "line": {"color": "#ff2d55", "width": 3},
+                "line": {"color": "#ef4444", "width": 3},
                 "thickness": 0.8,
-                "value": 75,
+                "value": 85,
             },
         },
     ))
     fig_gauge.update_layout(
-        height=280,
-        margin=dict(t=50, b=20, l=30, r=30),
+        height=260,
+        margin=dict(t=30, b=10, l=30, r=30),
         paper_bgcolor="rgba(0,0,0,0)",
         plot_bgcolor="rgba(0,0,0,0)",
-        font={"color": "#e0e6ed"},
+        font={"color": "#e2e8f0"},
     )
     st.plotly_chart(fig_gauge, use_container_width=True)
 
 with chart_right:
-    st.markdown('<div class="section-header">Threat Trend</div>', unsafe_allow_html=True)
-    # Build time series from event log
+    st.markdown("""
+    <div class="chart-container fade-in" style="animation-delay:0.6s">
+        <div class="chart-header">
+            <div class="chart-title"><span>📉</span> Neural Threat Trend</div>
+            <div class="live-badge"><div class="pulse-dot" style="width:6px; height:6px; background:#00d4ff; box-shadow:0 0 10px #00d4ff;"></div> ACTIVE</div>
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
+    # Business logic preserved
     trend_df = df.copy()
     trend_df["timestamp"] = pd.to_datetime(trend_df["timestamp"])
     trend_df = trend_df.sort_values("timestamp")
@@ -238,34 +197,42 @@ with chart_right:
         marker=dict(
             size=6,
             color=trend_df["risk_score"].tolist(),
-            colorscale=[[0, "#00e676"], [0.4, "#ffaa00"], [0.7, "#ff6b35"], [1, "#ff2d55"]],
-            opacity=0.7,
+            colorscale=[[0, "#10b981"], [0.4, "#f59e0b"], [0.7, "#fb923c"], [1, "#ef4444"]],
+            opacity=0.6,
         ),
-        name="Event Risk",
+        name="Telemetry",
     ))
     fig_trend.add_trace(go.Scatter(
         x=trend_df["timestamp"].tolist(),
         y=trend_df["cumulative_risk"].tolist(),
         mode="lines",
-        line=dict(color="#00d4ff", width=2),
-        name="Avg Trend",
+        line=dict(color="#00d4ff", width=3, shape='spline'),
+        name="AI Baseline",
     ))
-    fig_trend.add_hline(y=75, line_dash="dash", line_color="#ff2d55", opacity=0.5,
-                         annotation_text="CRITICAL", annotation_font_color="#ff2d55")
     fig_trend.update_layout(
-        height=280,
-        margin=dict(t=20, b=40, l=40, r=20),
+        height=260,
+        margin=dict(t=10, b=30, l=40, r=10),
         paper_bgcolor="rgba(0,0,0,0)",
         plot_bgcolor="rgba(0,0,0,0)",
-        xaxis=dict(gridcolor="#1e2d3d", tickfont={"color": "#6b7b8d"}),
-        yaxis=dict(gridcolor="#1e2d3d", tickfont={"color": "#6b7b8d"}, title="Risk Score"),
-        legend=dict(font={"color": "#8892a0"}, bgcolor="rgba(0,0,0,0)"),
-        font={"color": "#e0e6ed"},
+        xaxis=dict(gridcolor="rgba(255,255,255,0.05)", tickfont={"color": "#64748b"}),
+        yaxis=dict(gridcolor="rgba(255,255,255,0.05)", tickfont={"color": "#64748b"}),
+        legend=dict(font={"color": "#94a3b8"}, bgcolor="rgba(0,0,0,0)", orientation="h", y=1.1),
+        font={"color": "#e2e8f0"},
     )
     st.plotly_chart(fig_trend, use_container_width=True)
 
 # ── Department Risk Breakdown ────────────────────────────────────────────────
-st.markdown('<div class="section-header">Risk by Department</div>', unsafe_allow_html=True)
+st.markdown("""
+<div class="chart-container fade-in" style="animation-delay:0.7s">
+    <div class="chart-header">
+        <div class="chart-title"><span>🏢</span> Departmental Vulnerability Index</div>
+        <div class="live-badge" style="color:var(--accent-violet); border-color:rgba(108,99,255,0.2); background:rgba(108,99,255,0.05);">
+            <div class="pulse-dot" style="width:6px; height:6px; background:var(--accent-violet); box-shadow:0 0 10px var(--accent-violet);"></div> STATIC
+        </div>
+    </div>
+</div>
+""", unsafe_allow_html=True)
+
 dept_risk = df.groupby("department")["risk_score"].mean().sort_values(ascending=True)
 fig_dept = go.Figure(go.Bar(
     x=dept_risk.values.tolist(),
@@ -273,7 +240,8 @@ fig_dept = go.Figure(go.Bar(
     orientation="h",
     marker=dict(
         color=dept_risk.values.tolist(),
-        colorscale=[[0, "#00e676"], [0.5, "#ffaa00"], [1, "#ff2d55"]],
+        colorscale=[[0, "rgba(16, 185, 129, 0.4)"], [0.5, "rgba(245, 158, 11, 0.4)"], [1, "rgba(239, 68, 68, 0.4)"]],
+        line=dict(color="var(--accent-cyan)", width=1)
     ),
 ))
 fig_dept.update_layout(
@@ -281,14 +249,22 @@ fig_dept.update_layout(
     margin=dict(t=10, b=30, l=100, r=20),
     paper_bgcolor="rgba(0,0,0,0)",
     plot_bgcolor="rgba(0,0,0,0)",
-    xaxis=dict(gridcolor="#1e2d3d", tickfont={"color": "#6b7b8d"}, title="Avg Risk Score"),
-    yaxis=dict(tickfont={"color": "#8892a0"}),
-    font={"color": "#e0e6ed"},
+    xaxis=dict(gridcolor="rgba(255,255,255,0.05)", tickfont={"color": "#64748b"}),
+    yaxis=dict(tickfont={"color": "#94a3b8"}),
+    font={"color": "#e2e8f0"},
 )
 st.plotly_chart(fig_dept, use_container_width=True)
 
 # ── Attack Simulation ────────────────────────────────────────────────────────
-st.markdown('<div class="section-header">Attack Simulation Console</div>', unsafe_allow_html=True)
+st.markdown("""
+<div class="section-header fade-in" style="animation-delay:0.8s; border-bottom:none; margin-bottom:0.5rem;">
+    📡 Attack Simulation Console
+</div>
+<div style="font-size:0.7rem; color:var(--text-secondary); margin-bottom:1.5rem; letter-spacing:1px; text-transform:uppercase;">
+    Authorized Personnel Only // Threat Injection Subsystem
+</div>
+""", unsafe_allow_html=True)
+
 sim_col1, sim_col2, sim_col3 = st.columns(3)
 
 def run_simulation(attack_fn, attack_name):
@@ -323,17 +299,24 @@ with sim_col3:
         st.rerun()
 
 if st.session_state.attack_history:
-    st.markdown("")
+    st.markdown("<div style='background:rgba(0, 212, 255, 0.05); border:1px solid rgba(0, 212, 255, 0.1); border-radius:8px; padding:1rem; margin-top:1rem;'>", unsafe_allow_html=True)
     for atk in reversed(st.session_state.attack_history[-5:]):
         st.markdown(
-            f"<span style='color:#6b7b8d'>[{atk['time']}]</span> "
-            f"<span style='color:#ff6b35'>{atk['type']}</span> — "
-            f"{atk['events']} events, {atk['incidents']} incidents generated",
+            f"<div style='font-size:0.8rem; margin-bottom:4px;'>"
+            f"<span style='color:var(--text-muted); font-family:monospace;'>[{atk['time']}]</span> "
+            f"<span style='color:var(--accent-cyan); font-weight:700;'>{atk['type'].upper()}</span> "
+            f"<span style='color:var(--text-secondary);'>— {atk['events']} telemetry packets injected, {atk['incidents']} alerts triggered</span>"
+            f"</div>",
             unsafe_allow_html=True,
         )
+    st.markdown("</div>", unsafe_allow_html=True)
 
 # ── Alert / Incident Table ──────────────────────────────────────────────────
-st.markdown('<div class="section-header">Active Alerts & Incidents</div>', unsafe_allow_html=True)
+st.markdown("""
+<div class="section-header fade-in" style="animation-delay:0.9s; margin-top:3rem;">
+    📋 Real-Time Threat Ledger
+</div>
+""", unsafe_allow_html=True)
 
 if st.session_state.incidents:
     inc_df = pd.DataFrame(st.session_state.incidents)
@@ -355,7 +338,11 @@ else:
     st.info("No incidents detected. System operating within normal parameters.")
 
 # ── Incident Detail Panel ───────────────────────────────────────────────────
-st.markdown('<div class="section-header">Incident Reports</div>', unsafe_allow_html=True)
+st.markdown("""
+<div class="section-header fade-in" style="animation-delay:1s; margin-top:3rem;">
+    📂 Intelligence Briefings
+</div>
+""", unsafe_allow_html=True)
 
 if st.session_state.incidents:
     for i, inc in enumerate(reversed(st.session_state.incidents[-10:])):
