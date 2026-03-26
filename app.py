@@ -29,82 +29,98 @@ st.set_page_config(
     initial_sidebar_state="collapsed",
 )
 
-# ── Dark Theme CSS ───────────────────────────────────────────────────────────
+# ── Professional Slate UI CSS ────────────────────────────────────────────────
 st.markdown("""
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
 <style>
+    /* Global Styles */
     .stApp {
-        background-color: #0a0e17;
-        color: #e0e6ed;
+        background-color: #0f172a;
+        color: #f8fafc;
+        font-family: 'Inter', sans-serif;
     }
+    
+    [data-testid="stHeader"] {
+        background: #0f172a !important;
+    }
+
     .main-title {
         text-align: center;
         font-size: 2.2rem;
-        font-weight: 800;
-        background: linear-gradient(90deg, #00d4ff, #7b2ff7, #ff2d55);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        padding: 0.5rem 0 0.2rem 0;
-        letter-spacing: 1px;
+        font-weight: 700;
+        color: #ffffff;
+        padding: 1.5rem 0 0.5rem 0;
     }
+    
     .sub-title {
         text-align: center;
-        font-size: 0.95rem;
-        color: #6b7b8d;
-        margin-bottom: 1.5rem;
-    }
-    .kpi-card {
-        background: linear-gradient(135deg, #121929, #1a2332);
-        border: 1px solid #1e2d3d;
-        border-radius: 12px;
-        padding: 1.2rem 1rem;
-        text-align: center;
-    }
-    .kpi-value {
-        font-size: 2rem;
-        font-weight: 700;
-        color: #00d4ff;
-    }
-    .kpi-label {
         font-size: 0.85rem;
-        color: #6b7b8d;
+        color: #94a3b8;
+        margin-bottom: 2rem;
         text-transform: uppercase;
+        font-weight: 500;
         letter-spacing: 1px;
     }
-    .kpi-critical { color: #ff2d55 !important; }
-    .kpi-warn { color: #ffaa00 !important; }
-    .kpi-ok { color: #00e676 !important; }
-    .section-header {
-        font-size: 1.1rem;
-        font-weight: 600;
-        color: #8892a0;
-        border-bottom: 1px solid #1e2d3d;
-        padding-bottom: 0.4rem;
-        margin: 1.2rem 0 0.8rem 0;
+
+    /* Professional Metric Cards */
+    .kpi-card {
+        background: #1e293b;
+        border: 1px solid #334155;
+        border-radius: 8px;
+        padding: 1.2rem;
+        text-align: center;
+    }
+    
+    .kpi-value {
+        font-size: 2.2rem;
+        font-weight: 700;
+        margin-bottom: 0px;
+    }
+
+    .kpi-label {
+        font-size: 0.7rem;
+        color: #94a3b8;
         text-transform: uppercase;
-        letter-spacing: 1.5px;
-    }
-    div[data-testid="stExpander"] {
-        background: #121929;
-        border: 1px solid #1e2d3d;
-        border-radius: 8px;
-    }
-    .stButton > button {
-        border: 1px solid #2a3a4a;
-        background: linear-gradient(135deg, #1a2332, #0f1923);
-        color: #e0e6ed;
-        border-radius: 8px;
-        padding: 0.5rem 1.5rem;
         font-weight: 600;
-        transition: all 0.3s;
     }
-    .stButton > button:hover {
-        border-color: #00d4ff;
-        box-shadow: 0 0 15px rgba(0, 212, 255, 0.3);
+
+    /* Signal Colors */
+    .kpi-critical { color: #ef4444; }
+    .kpi-warn { color: #f59e0b; }
+    .kpi-ok { color: #10b981; }
+    .kpi-cyan { color: #3b82f6; }
+
+    /* Section Headers */
+    .section-header {
+        font-size: 1rem;
+        font-weight: 600;
+        color: #f8fafc;
+        border-bottom: 1px solid #334155;
+        padding-bottom: 0.5rem;
+        margin: 2rem 0 1rem 0;
     }
-    div[data-testid="stDataFrame"] {
-        background: #121929;
-        border-radius: 8px;
+
+    /* Buttons */
+    div.stButton > button {
+        background-color: #1e293b;
+        color: #f1f5f9;
+        border: 1px solid #334155;
+        border-radius: 6px;
+        padding: 0.5rem 1rem;
+        font-weight: 500;
     }
+
+    div.stButton > button:hover {
+        background-color: #334155;
+        color: #ffffff;
+    }
+
+    /* Containers */
+    div[data-testid="stExpander"] { background: #1e293b; border: 1px solid #334155; }
+    div[data-testid="stDataFrame"] { background: #1e293b; border: 1px solid #334155; }
 </style>
 """, unsafe_allow_html=True)
 
