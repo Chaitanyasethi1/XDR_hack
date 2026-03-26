@@ -1,9 +1,9 @@
 import streamlit.components.v1 as components
 import json
 
-def render_3d_globe(incidents_df, height=520):
+def render_3d_globe(incidents_df, height=450):
     """
-    Renders the 3D Threat Globe with LIVE data and PERFECT CENTERING.
+    Renders the 3D Threat Globe with a more COMPACT scale.
     """
     incidents_list = []
     if incidents_df is not None and not incidents_df.empty:
@@ -41,18 +41,18 @@ def render_3d_globe(incidents_df, height=520):
             #canvas-container:active {{ cursor: grabbing; }}
             
             .hud-top {{ position: absolute; top: 15px; left: 15px; pointer-events: none; }}
-            .wordmark {{ font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; letter-spacing: 4px; font-weight: 800; display: flex; align-items: center; gap: 15px; }}
-            .live-badge {{ color: #ff3a3a; font-size: 0.65rem; display: flex; align-items: center; gap: 8px; }}
-            .pulse-dot {{ width: 6px; height: 6px; background: #ff3a3a; border-radius: 50%; box-shadow: 0 0 10px #ff3a3a; animation: pulse 2s infinite; }}
+            .wordmark {{ font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; letter-spacing: 3px; font-weight: 800; display: flex; align-items: center; gap: 12px; }}
+            .live-badge {{ color: #ff3a3a; font-size: 0.6rem; display: flex; align-items: center; gap: 6px; }}
+            .pulse-dot {{ width: 5px; height: 5px; background: #ff3a3a; border-radius: 50%; box-shadow: 0 0 10px #ff3a3a; animation: pulse 2s infinite; }}
             @keyframes pulse {{ 0% {{ transform: scale(0.9); opacity: 0.6; }} 50% {{ transform: scale(1.3); opacity: 1; }} 100% {{ transform: scale(0.9); opacity: 0.6; }} }}
 
-            .hud-bottom {{ position: absolute; bottom: 15px; left: 15px; right: 15px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; pointer-events: none; }}
-            .stat-card {{ background: rgba(0, 212, 255, 0.05); border: 1px solid rgba(0, 212, 255, 0.2); border-radius: 4px; padding: 10px; text-align: center; backdrop-filter: blur(10px); }}
-            .label {{ font-size: 0.5rem; color: #94a3b8; text-transform: uppercase; letter-spacing: 2px; font-weight: 700; margin-bottom: 3px; }}
-            .value {{ font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; color: #00d4ff; text-shadow: 0 0 10px rgba(0, 212, 255, 0.4); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }}
+            .hud-bottom {{ position: absolute; bottom: 12px; left: 15px; right: 15px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; pointer-events: none; }}
+            .stat-card {{ background: rgba(0, 212, 255, 0.04); border: 1px solid rgba(0, 212, 255, 0.15); border-radius: 4px; padding: 8px; text-align: center; backdrop-filter: blur(8px); }}
+            .label {{ font-size: 0.45rem; color: #94a3b8; text-transform: uppercase; letter-spacing: 1.5px; font-weight: 700; margin-bottom: 2px; }}
+            .value {{ font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: #00d4ff; text-shadow: 0 0 8px rgba(0, 212, 255, 0.3); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }}
             
-            .active-alert {{ position: absolute; top: 45px; left: 15px; color: #ff3a3a; font-family: 'JetBrains Mono'; font-size: 0.55rem; letter-spacing: 1px; animation: slideIn 0.5s ease; }}
-            @keyframes slideIn {{ from {{ transform: translateX(-20px); opacity:0; }} to {{ transform: translateX(0); opacity:1; }} }}
+            .active-alert {{ position: absolute; top: 40px; left: 15px; color: #ff3a3a; font-family: 'JetBrains Mono'; font-size: 0.5rem; letter-spacing: 1px; animation: slideIn 0.5s ease; }}
+            @keyframes slideIn {{ from {{ transform: translateX(-15px); opacity:0; }} to {{ transform: translateX(0); opacity:1; }} }}
         </style>
     </head>
     <body>
@@ -78,8 +78,8 @@ def render_3d_globe(incidents_df, height=520):
             function init() {{
                 scene = new THREE.Scene();
                 const aspect = container.clientWidth / container.clientHeight;
-                camera = new THREE.PerspectiveCamera(40, aspect, 1, 2000);
-                camera.position.z = 520;
+                camera = new THREE.PerspectiveCamera(35, aspect, 1, 2000);
+                camera.position.z = 640; // Pulled back for smaller appearance
 
                 renderer = new THREE.WebGLRenderer({{ antialias: true, alpha: true }});
                 renderer.setSize(container.clientWidth, container.clientHeight);
@@ -97,25 +97,25 @@ def render_3d_globe(incidents_df, height=520):
                     const ctx = canvas.getContext('2d');
                     ctx.fillStyle = '#01050a'; ctx.fillRect(0,0,1024,512);
                     
-                    ctx.globalAlpha = 0.6;
+                    ctx.globalAlpha = 0.5;
                     ctx.drawImage(topoTexture.image, 0, 0, 1024, 512);
                     ctx.globalAlpha = 1.0;
 
-                    ctx.strokeStyle = 'rgba(0,212,255,0.1)'; ctx.lineWidth = 1;
+                    ctx.strokeStyle = 'rgba(0,212,255,0.08)'; ctx.lineWidth = 1;
                     for(let i=0; i<=360; i+=20) {{ ctx.beginPath(); ctx.moveTo((i/360)*1024, 0); ctx.lineTo((i/360)*1024,512); ctx.stroke(); }}
                     for(let i=0; i<=180; i+=20) {{ ctx.beginPath(); ctx.moveTo(0,(i/180)*512); ctx.lineTo(1024,(i/180)*512); ctx.stroke(); }}
 
                     const texture = new THREE.CanvasTexture(canvas);
                     globe = new THREE.Mesh(
                         new THREE.SphereGeometry(radius, 64, 64),
-                        new THREE.MeshPhongMaterial({{ map: texture, shininess: 10, transparent: true, opacity: 0.95, emissive: 0x00d4ff, emissiveIntensity: 0.05 }})
+                        new THREE.MeshPhongMaterial({{ map: texture, shininess: 8, transparent: true, opacity: 0.95, emissive: 0x00d4ff, emissiveIntensity: 0.05 }})
                     );
                     globe.rotation.y = parseFloat(savedRotation);
                     scene.add(globe);
 
                     const atmos = new THREE.Mesh(
-                        new THREE.SphereGeometry(radius+8, 64, 64),
-                        new THREE.MeshBasicMaterial({{ color:0x00d4ff, transparent:true, opacity:0.04, side:THREE.BackSide }})
+                        new THREE.SphereGeometry(radius+6, 64, 64),
+                        new THREE.MeshBasicMaterial({{ color:0x00d4ff, transparent:true, opacity:0.03, side:THREE.BackSide }})
                     );
                     scene.add(atmos);
 

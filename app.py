@@ -81,7 +81,7 @@ if "event_log" not in st.session_state:
     st.session_state.attack_history = []
 
 # ── 3D Interactive Threat Globe (Hero Section) ────────────────────────────────
-render_3d_globe(pd.DataFrame(st.session_state.incidents), height=520)
+render_3d_globe(pd.DataFrame(st.session_state.incidents), height=450)
 
 df = st.session_state.event_log
 
