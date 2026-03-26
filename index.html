@@ -1,34 +1,99 @@
 <!DOCTYPE html>
-<html>
-  <head>
-    <meta charset="UTF-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta
-      name="viewport"
-      content="width=device-width, initial-scale=1, shrink-to-fit=no"
-    />
-    <title>AI Adaptive XDR – Civic Cyber Shield</title>
-    <link
-      rel="stylesheet"
-      href="https://cdn.jsdelivr.net/npm/@stlite/mountable@0.58.1/build/stlite.css"
-    />
-  </head>
-  <body>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Civic Cyber Shield | Intelligence Portal</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@stlite/mountable@0.58.1/build/stlite.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <style>
+        body, html { margin: 0; padding: 0; background: #0f172a; color: #f8fafc; font-family: 'Inter', sans-serif; height: 100%; overflow: hidden; }
+        
+        /* Information Overlay */
+        #intro-screen {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: #0f172a; display: flex; flex-direction: column;
+            justify-content: center; align-items: center; z-index: 10000;
+            transition: opacity 1s ease, transform 0.8s ease-in-out;
+            text-align: center; padding: 20px;
+        }
+
+        .info-card {
+            max-width: 500px; background: rgba(30, 41, 59, 0.5);
+            border: 1px solid rgba(255,255,255,0.1); border-radius: 20px;
+            padding: 40px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5);
+        }
+
+        h1 { font-size: 2.5rem; font-weight: 800; margin-bottom: 5px; color: #ffffff; }
+        .tagline { color: #3b82f6; font-weight: 600; text-transform: uppercase; letter-spacing: 2px; font-size: 0.8rem; margin-bottom: 30px; }
+        
+        .feature-list { text-align: left; margin: 20px 0; color: #94a3b8; font-size: 0.95rem; }
+        .feature-item { margin-bottom: 12px; display: flex; align-items: flex-start; }
+        .feature-item::before { content: "✓"; color: #10b981; font-weight: 900; margin-right: 15px; }
+
+        .loader-container { margin-top: 40px; }
+        .spinner {
+            width: 30px; height: 30px; border: 3px solid rgba(59, 130, 246, 0.2);
+            border-top: 3px solid #3b82f6; border-radius: 50%;
+            animation: spin 1s linear infinite; margin: 0 auto 15px;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .loading-text { font-size: 0.75rem; color: #64748b; letter-spacing: 1px; }
+
+        #root { opacity: 0; transition: opacity 1.5s ease; width: 100%; height: 100vh; }
+        
+        /* Fade out transition state */
+        .ready #intro-screen { opacity: 0; pointer-events: none; transform: scale(1.05); }
+        .ready #root { opacity: 1; }
+    </style>
+</head>
+<body>
+    <div id="intro-screen">
+        <div class="info-card">
+            <h1>CIVIC SHIELD</h1>
+            <div class="tagline">Next-Gen XDR Intelligence</div>
+            
+            <div class="feature-list">
+                <div class="feature-item">AI-Powered Anomaly Detection (Isolation Forest)</div>
+                <div class="feature-item">Real-time Phishing Intelligence & Classification</div>
+                <div class="feature-item">Weighted Risk Engine for Critical Infrastructure</div>
+                <div class="feature-item">Automated Incident Response Simulation</div>
+            </div>
+
+            <div class="loader-container">
+                <div class="spinner"></div>
+                <div class="loading-text">SYSTEM SECURING NODE...</div>
+            </div>
+        </div>
+    </div>
+
     <div id="root"></div>
+
     <script src="https://cdn.jsdelivr.net/npm/@stlite/mountable@0.58.1/build/stlite.js"></script>
     <script>
-      stlite.mount({
-        requirements: ["pandas", "numpy", "plotly", "scikit-learn"],
-        entrypoint: "app.py",
-        files: {
-          "app.py": { url: "./app.py" },
-          "anomaly.py": { url: "./anomaly.py" },
-          "phishing.py": { url: "./phishing.py" },
-          "risk_engine.py": { url: "./risk_engine.py" },
-          "simulator.py": { url: "./simulator.py" },
-          "incident_response.py": { url: "./incident_response.py" },
-        },
-      }, document.getElementById("root"));
+        stlite.mount({
+            requirements: ["pandas", "numpy", "plotly", "scikit-learn"],
+            entrypoint: "app.py",
+            files: {
+                "app.py": { url: "./app.py" },
+                "anomaly.py": { url: "./anomaly.py" },
+                "phishing.py": { url: "./phishing.py" },
+                "risk_engine.py": { url: "./risk_engine.py" },
+                "simulator.py": { url: "./simulator.py" },
+                "incident_response.py": { url: "./incident_response.py" },
+            },
+        }, document.getElementById("root"));
+
+        // AUTO-TRANSITION: Hide info page when dashboard is ready
+        const observer = new MutationObserver((mutations) => {
+            if (document.querySelector('.stApp')) {
+                setTimeout(() => {
+                    document.body.classList.add('ready');
+                    observer.disconnect();
+                }, 1500); 
+            }
+        });
+        observer.observe(document.getElementById('root'), { childList: true, subtree: true });
     </script>
-  </body>
+</body>
 </html>
