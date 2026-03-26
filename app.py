@@ -216,20 +216,20 @@ with chart_right:
 
     fig_trend = go.Figure()
     fig_trend.add_trace(go.Scatter(
-        x=trend_df["timestamp"],
-        y=trend_df["risk_score"],
+        x=trend_df["timestamp"].tolist(),
+        y=trend_df["risk_score"].tolist(),
         mode="markers",
         marker=dict(
             size=6,
-            color=trend_df["risk_score"],
+            color=trend_df["risk_score"].tolist(),
             colorscale=[[0, "#00e676"], [0.4, "#ffaa00"], [0.7, "#ff6b35"], [1, "#ff2d55"]],
             opacity=0.7,
         ),
         name="Event Risk",
     ))
     fig_trend.add_trace(go.Scatter(
-        x=trend_df["timestamp"],
-        y=trend_df["cumulative_risk"],
+        x=trend_df["timestamp"].tolist(),
+        y=trend_df["cumulative_risk"].tolist(),
         mode="lines",
         line=dict(color="#00d4ff", width=2),
         name="Avg Trend",
@@ -252,11 +252,11 @@ with chart_right:
 st.markdown('<div class="section-header">Risk by Department</div>', unsafe_allow_html=True)
 dept_risk = df.groupby("department")["risk_score"].mean().sort_values(ascending=True)
 fig_dept = go.Figure(go.Bar(
-    x=dept_risk.values,
-    y=dept_risk.index,
+    x=dept_risk.values.tolist(),
+    y=dept_risk.index.tolist(),
     orientation="h",
     marker=dict(
-        color=dept_risk.values,
+        color=dept_risk.values.tolist(),
         colorscale=[[0, "#00e676"], [0.5, "#ffaa00"], [1, "#ff2d55"]],
     ),
 ))
