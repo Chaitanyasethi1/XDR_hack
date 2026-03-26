@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, shrink-to-fit=no"
+    />
+    <title>AI Adaptive XDR – Civic Cyber Shield</title>
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/@stlite/mountable@0.58.1/build/stlite.css"
+    />
+    <style>
+      /* Splash screen styles */
+      #loading {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: #0a0e17;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        z-index: 9999;
+        color: #00d4ff;
+        font-family: 'Inter', sans-serif;
+      }
+      .spinner {
+        width: 50px;
+        height: 50px;
+        border: 3px solid rgba(0, 212, 255, 0.1);
+        border-top-color: #00d4ff;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        margin-bottom: 20px;
+      }
+      @keyframes spin {
+        to { transform: rotate(360deg); }
+      }
+    </style>
+  </head>
+  <body>
+    <div id="loading">
+      <div class="spinner"></div>
+      <div>Loading AI Cyber Shield Engine...</div>
+    </div>
+    <div id="root"></div>
+    <script src="https://cdn.jsdelivr.net/npm/@stlite/mountable@0.58.1/build/stlite.js"></script>
+    <script>
+      stlite.mount({
+        requirements: ["pandas", "numpy", "plotly", "scikit-learn"],
+        entrypoint: "app.py",
+        files: {
+          "app.py": { url: "./app.py" },
+          "anomaly.py": { url: "./anomaly.py" },
+          "phishing.py": { url: "./phishing.py" },
+          "risk_engine.py": { url: "./risk_engine.py" },
+          "simulator.py": { url: "./simulator.py" },
+          "incident_response.py": { url: "./incident_response.py" },
+        },
+        onMount: () => {
+          document.getElementById('loading').style.display = 'none';
+        }
+      }, document.getElementById("root"));
+    </script>
+  </body>
+</html>
