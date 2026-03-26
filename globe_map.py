@@ -4,6 +4,8 @@ def render_3d_globe(height=520):
     """
     Renders the Antigravity 3D Threat Globe using Three.js as a self-contained HTML component.
     """
+    # Using triple-quoted string without f-prefix to avoid escaping hell, then using .format()
+    # or just using double-braces where necessary. I'll use f-string and fix the escaping.
     globe_html = f"""
     <!DOCTYPE html>
     <html>
