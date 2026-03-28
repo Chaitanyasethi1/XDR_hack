@@ -253,7 +253,7 @@ st.plotly_chart(fig_dept, use_container_width=True)
 # ── Attack Simulation ────────────────────────────────────────────────────────
 st.markdown("""
 <div class="section-header fade-in" style="animation-delay:0.8s; border-bottom:none; margin-bottom:0.5rem;">
-    📡 Attack Simulation Console
+    📡 Attack Test Console
 </div>
 <div style="font-size:0.7rem; color:var(--text-secondary); margin-bottom:1.5rem; letter-spacing:1px; text-transform:uppercase;">
     Authorized Personnel Only // Threat Injection Subsystem
@@ -279,17 +279,17 @@ def run_simulation(attack_fn, attack_name):
     })
 
 with sim_col1:
-    if st.button("⚡ Simulate Phishing Attack", use_container_width=True):
+    if st.button("⚡ Test Phishing Attack", use_container_width=True):
         run_simulation(simulate_phishing_attack, "Phishing")
         st.rerun()
 
 with sim_col2:
-    if st.button("🔓 Simulate Credential Breach", use_container_width=True):
+    if st.button("🔓 Test Credential Breach", use_container_width=True):
         run_simulation(simulate_credential_breach, "Credential Breach")
         st.rerun()
 
 with sim_col3:
-    if st.button("👤 Simulate Insider Threat", use_container_width=True):
+    if st.button("👤 Test Insider Threat", use_container_width=True):
         run_simulation(simulate_insider_threat, "Insider Threat")
         st.rerun()
 

@@ -112,14 +112,14 @@ def render_3d_globe(incidents_df, height=450):
             let autoRotate = true;
             let autoRotateTimeout = null;
             const container = document.getElementById('canvas-container');
-            const radius = 200;
+            const radius = 155;
             const incidents = {incidents_json};
 
             function init() {{
                 scene = new THREE.Scene();
                 const aspect = container.clientWidth / container.clientHeight;
                 camera = new THREE.PerspectiveCamera(35, aspect, 1, 2000);
-                camera.position.z = 620;
+                camera.position.z = 960;
 
                 renderer = new THREE.WebGLRenderer({{ antialias: true, alpha: true }});
                 renderer.setSize(container.clientWidth, container.clientHeight);
@@ -153,6 +153,7 @@ def render_3d_globe(incidents_df, height=450):
                     // Draw country/coastal borders on top of the texture
                     const canvas = document.createElement('canvas');
                     canvas.width = 2048; canvas.height = 1024;
+
                     const ctx = canvas.getContext('2d');
 
                     // Draw base texture
