@@ -1,5 +1,5 @@
 """
-AI Adaptive XDR – Civic Cyber Shield
+AI Adaptive XDR – AIRAVAT
 Main Streamlit Dashboard
 """
 
@@ -24,7 +24,7 @@ from globe_map import render_3d_globe
 
 # ── Page Config ──────────────────────────────────────────────────────────────
 st.set_page_config(
-    page_title="AI Adaptive XDR – Civic Cyber Shield",
+    page_title="AI Adaptive XDR – AIRAVAT",
     page_icon="🛡️",
     layout="wide",
     initial_sidebar_state="collapsed",
@@ -43,7 +43,7 @@ st.markdown("""
 <div class="cyber-navbar">
     <div class="nav-left">
         <div class="menu-btn" style="font-size:1.5rem; cursor:pointer; color:var(--accent-cyan); margin-right:1rem;">☰</div>
-        <div class="nav-logo">CIVIC SHIELD // XDR</div>
+        <div class="nav-logo">AIRAVAT // XDR</div>
         <div style="font-size:0.7rem; color:var(--text-secondary); opacity:0.6;">v4.0.5 // SECURE_NODE</div>
     </div>
     <div class="nav-right">
@@ -353,7 +353,7 @@ else:
 st.markdown("---")
 st.markdown(
     "<div style='text-align:center; color:#3a4a5a; font-size:0.8rem;'>"
-    "AI Adaptive XDR – Civic Cyber Shield • Powered by Isolation Forest & TF-IDF/LR • "
+    "AI Adaptive XDR – AIRAVAT • Powered by Isolation Forest & TF-IDF/LR • "
     f"Events Processed: {len(df)} • {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"
     "</div>",
     unsafe_allow_html=True,

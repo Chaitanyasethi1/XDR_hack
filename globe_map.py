@@ -91,7 +91,7 @@ def render_3d_globe(incidents_df, height=450):
     <body>
         <div id="canvas-container">
             <div class="hud-top">
-                <div class="wordmark">CIVIC SHIELD // <span class="live-badge"><div class="pulse-dot"></div> LIVE TRACKING</span></div>
+                <div class="wordmark">AIRAVAT // <span class="live-badge"><div class="pulse-dot"></div> LIVE TRACKING</span></div>
             </div>
             <div class="drag-hint">⟳ DRAG TO ROTATE</div>
             <div id="alert-feed" class="active-alert"></div>
