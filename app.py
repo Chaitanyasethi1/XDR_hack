@@ -38,98 +38,233 @@ try:
 except Exception:
     pass
 
-# ── Hardware Guard Logic ──────────────────────────────────────────────────
+# ── Hide Streamlit default header/footer & Menu ──────────────────────────────
 st.markdown("""
 <style>
-    #unauthorized-device-popup {
-        display: none;
-        position: fixed;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        z-index: 2147483647 !important;
-        background: rgba(30, 0, 0, 0.98);
-        border: 4px solid #ff0000;
-        box-shadow: 0 0 100px #ff0000;
-        padding: 50px;
-        width: 450px;
-        text-align: center;
-        border-radius: 10px;
-        font-family: monospace;
-        color: white;
+    header, [data-testid="stHeader"], [data-testid="stToolbar"], footer, #MainMenu {
+        display: none !important;
+        visibility: hidden !important;
     }
-    .shield-btn {
-        background: rgba(255, 45, 85, 0.1);
-        border: 1px solid #ff2d55;
-        color: #ff2d55;
-        padding: 4px 10px;
-        border-radius: 4px;
-        font-size: 0.6rem;
-        cursor: pointer;
-        font-weight: 800;
-        letter-spacing: 0.5px;
-        transition: all 0.3s;
-        margin-left: 1rem;
-    }
-    .shield-btn:hover { background: #ff2d55; color: white; }
-    .shield-btn.active { border-color: #00d4ff; color: #00d4ff; background: rgba(0, 212, 255, 0.1); }
+    .stApp { top: -70px; }
 </style>
-
-<div id="unauthorized-device-popup">
-    <div style="font-size: 4rem;">🚨</div>
-    <div style="color:#ff0000; font-size:1.8rem; font-weight:900;">BREACH ALERT</div>
-    <div id="popup-device-name" style="margin:20px 0; font-size:1.1rem;">UNKNOWN HARDWARE CONNECTED</div>
-    <button style="background:#ff0000; color:white; border:none; padding:15px 30px; cursor:pointer; font-weight:bold;" onclick="document.getElementById('unauthorized-device-popup').style.display='none'">BYPASS</button>
-</div>
-
-<script>
-    function triggerAlert(name) {
-        document.getElementById('popup-device-name').innerText = name || 'UNAUTHORIZED HW DETECTED';
-        document.getElementById('unauthorized-device-popup').style.display = 'block';
-        alert("SECURITY ALERT: " + name);
-    }
-
-    function enableShield() {
-        if ('usb' in navigator) {
-            navigator.usb.requestDevice({ filters: [] })
-                .then(d => {
-                    const btn = document.getElementById('shield-btn-main');
-                    btn.innerText = "SHIELD: ACTIVE";
-                    btn.classList.add('active');
-                    triggerAlert(d.productName);
-                })
-                .catch(e => {
-                    console.error(e);
-                    alert("Click 'ALLOW' to let the Shield monitor your ports.");
-                });
-        }
-    }
-
-    if ('usb' in navigator) {
-        navigator.usb.onconnect = (e) => triggerAlert(e.device.productName);
-    }
-</script>
 """, unsafe_allow_html=True)
 
-# ── Sticky Navbar ────────────────────────────────────────────────────────────
+# ── Sticky Navbar (no JS needed here, purely visual) ─────────────────────────
 st.markdown("""
 <div class="cyber-navbar">
     <div class="nav-left">
-        <div class="menu-btn" style="font-size:1.5rem; cursor:pointer; color:var(--accent-cyan); margin-right:1rem;">☰</div>
+        <div style="font-size:1.5rem; color:#00D4FF; margin-right:1rem;">☰</div>
         <div class="nav-logo">AIRAVAT // XDR</div>
-        <button id="shield-btn-main" class="shield-btn" onclick="enableShield()">ENABLE HARDWARE SHIELD</button>
     </div>
     <div class="nav-right">
         <div class="status-indicator">
             <div class="pulse-dot"></div>
             KERNEL_ONLINE
         </div>
-        <div style="color:var(--text-secondary); font-size:1.1rem; cursor:pointer;">📡</div>
-        <div style="width:32px; height:32px; background:var(--accent-cyan); border-radius:3px; border:1px solid var(--accent-cyan); display:flex; align-items:center; justify-content:center; color:var(--bg-primary); font-weight:900; font-size:0.8rem;">AG</div>
+        <div style="color:#94A3B8; font-size:1.1rem;">📡</div>
+        <div style="width:32px; height:32px; background:#00D4FF; border-radius:3px; display:flex; align-items:center; justify-content:center; color:#000; font-weight:900; font-size:0.8rem;">AG</div>
     </div>
 </div>
-<div style="margin-top: 80px;"></div>
+<div style="margin-top: 45px;"></div>
 """, unsafe_allow_html=True)
+
+# ── Hardware Guard (fully self-contained in components.html - JS WORKS here) ─
+import streamlit.components.v1 as components
+
+components.html("""
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Courier New', monospace; background: transparent; }
+
+    .shield-container {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 8px 0;
+    }
+
+    #shield-btn {
+        background: rgba(255, 45, 85, 0.15);
+        border: 2px solid #ff2d55;
+        color: #ff2d55;
+        padding: 10px 20px;
+        font-size: 14px;
+        font-weight: 900;
+        cursor: pointer;
+        letter-spacing: 1px;
+        font-family: 'Courier New', monospace;
+        transition: all 0.3s;
+        text-transform: uppercase;
+    }
+    #shield-btn:hover { background: #ff2d55; color: white; }
+    #shield-btn.active { background: #00d4ff; border-color: #00d4ff; color: #000; }
+
+    #shield-status {
+        color: #94a3b8;
+        font-size: 12px;
+        letter-spacing: 1px;
+    }
+
+    /* POPUP OVERLAY */
+    #breach-overlay {
+        display: none;
+        position: fixed;
+        top: 0; left: 0; width: 100vw; height: 100vh;
+        background: rgba(0,0,0,0.9);
+        z-index: 999999;
+        justify-content: center;
+        align-items: center;
+    }
+    #breach-overlay.show { display: flex; }
+
+    .breach-box {
+        background: #0a0000;
+        border: 4px solid #ff0000;
+        box-shadow: 0 0 80px rgba(255,0,0,0.6);
+        padding: 50px 60px;
+        text-align: center;
+        max-width: 500px;
+        animation: pulseGlow 1.5s infinite;
+    }
+    @keyframes pulseGlow {
+        0%, 100% { box-shadow: 0 0 40px rgba(255,0,0,0.4); }
+        50% { box-shadow: 0 0 100px rgba(255,0,0,0.8); }
+    }
+
+    .breach-icon { font-size: 60px; margin-bottom: 15px; }
+    .breach-title { color: #ff0000; font-size: 28px; font-weight: 900; letter-spacing: 4px; margin-bottom: 15px; }
+    .breach-device { color: #00d4ff; font-size: 18px; margin-bottom: 25px; }
+    .breach-sub { color: #ff2d55; font-size: 12px; letter-spacing: 2px; margin-bottom: 25px; }
+
+    #bypass-btn {
+        background: #ff0000;
+        color: white;
+        border: none;
+        padding: 15px 40px;
+        font-size: 16px;
+        font-weight: 900;
+        cursor: pointer;
+        letter-spacing: 2px;
+        font-family: 'Courier New', monospace;
+    }
+    #bypass-btn:hover { background: white; color: red; }
+</style>
+</head>
+<body>
+
+<div class="shield-container">
+    <button id="shield-btn" onclick="enableShield()">⚡ ENABLE HARDWARE SHIELD</button>
+    <span id="shield-status">STATUS: STANDBY</span>
+</div>
+
+<!-- BREACH POPUP -->
+<div id="breach-overlay">
+    <div class="breach-box">
+        <div class="breach-icon">🚨</div>
+        <div class="breach-title">BREACH ALERT</div>
+        <div class="breach-device" id="device-name">UNAUTHORIZED HARDWARE</div>
+        <div class="breach-sub">LOCKDOWN PROTOCOL INITIATED</div>
+        <button id="bypass-btn" onclick="dismissAlert()">BYPASS WARNING</button>
+    </div>
+</div>
+
+<script>
+    // ── Emergency Siren + Voice ──
+    function playEmergency(deviceName) {
+        // Voice
+        try {
+            const msg = new SpeechSynthesisUtterance("WARNING. UNAUTHORIZED HARDWARE ACCESS DETECTED. Device: " + deviceName);
+            msg.rate = 0.85;
+            msg.pitch = 0.4;
+            msg.volume = 1;
+            window.speechSynthesis.speak(msg);
+        } catch(e) {}
+
+        // Siren sound
+        try {
+            const ctx = new (window.AudioContext || window.webkitAudioContext)();
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.type = 'sawtooth';
+            osc.frequency.setValueAtTime(400, ctx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(900, ctx.currentTime + 0.3);
+            osc.frequency.exponentialRampToValueAtTime(400, ctx.currentTime + 0.6);
+            osc.frequency.exponentialRampToValueAtTime(900, ctx.currentTime + 0.9);
+            osc.frequency.exponentialRampToValueAtTime(400, ctx.currentTime + 1.2);
+            gain.gain.setValueAtTime(0.4, ctx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 2);
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.start();
+            osc.stop(ctx.currentTime + 2);
+        } catch(e) {}
+    }
+
+    // ── Show breach alert ──
+    function showBreach(name) {
+        document.getElementById('device-name').innerText = 'DETECTED: ' + (name || 'UNKNOWN DEVICE');
+        document.getElementById('breach-overlay').classList.add('show');
+        playEmergency(name || 'Unknown Device');
+    }
+
+    // ── Dismiss alert ──
+    function dismissAlert() {
+        document.getElementById('breach-overlay').classList.remove('show');
+    }
+
+    // ── Enable Shield (requests USB permission) ──
+    function enableShield() {
+        const btn = document.getElementById('shield-btn');
+        const status = document.getElementById('shield-status');
+
+        if (!navigator.usb) {
+            status.innerText = 'ERROR: WebUSB not supported. Use Chrome/Edge.';
+            status.style.color = '#ff0000';
+            return;
+        }
+
+        btn.innerText = 'SCANNING PORTS...';
+        status.innerText = 'STATUS: INITIALIZING...';
+        status.style.color = '#f59e0b';
+
+        navigator.usb.requestDevice({ filters: [] })
+            .then(device => {
+                btn.innerText = '🛡️ SHIELD ACTIVE';
+                btn.classList.add('active');
+                status.innerText = 'MONITORING: ' + (device.productName || 'USB PORT');
+                status.style.color = '#00d4ff';
+                showBreach(device.productName || 'USB Device');
+            })
+            .catch(err => {
+                btn.innerText = '⚡ ENABLE HARDWARE SHIELD';
+                status.innerText = 'STATUS: CANCELLED - TRY AGAIN';
+                status.style.color = '#ff2d55';
+            });
+    }
+
+    // ── Auto-detect new USB connections ──
+    if (navigator.usb) {
+        navigator.usb.addEventListener('connect', (e) => {
+            showBreach(e.device.productName || 'Mass Storage Device');
+        });
+    }
+
+    // ── Secondary Detection Layer (Hardware Pulse) ──
+    // This catches devices that the OS hides from the selection list (like Pendrives)
+    if (navigator.mediaDevices) {
+        navigator.mediaDevices.ondevicechange = function(event) {
+            console.log("Hardware Change Detected via Media Subsystem");
+            showBreach("EXTERNAL HARDWARE PULSE");
+        };
+    }
+</script>
+
+</body>
+</html>
+""", height=55)
 
 # ── Initialize Models (cached) ──────────────────────────────────────────────
 @st.cache_resource
@@ -154,7 +289,7 @@ if "event_log" not in st.session_state:
     st.session_state.attack_history = []
 
 # ── 3D Interactive Threat Globe (Hero Section) ────────────────────────────────
-render_3d_globe(pd.DataFrame(st.session_state.incidents), height=450)
+render_3d_globe(pd.DataFrame(st.session_state.incidents), height=550)
 
 df = st.session_state.event_log
 
