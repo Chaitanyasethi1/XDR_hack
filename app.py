@@ -38,13 +38,86 @@ try:
 except Exception:
     pass
 
+# ── Hardware Guard Logic ──────────────────────────────────────────────────
+st.markdown("""
+<style>
+    #unauthorized-device-popup {
+        display: none;
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        z-index: 2147483647 !important;
+        background: rgba(30, 0, 0, 0.98);
+        border: 4px solid #ff0000;
+        box-shadow: 0 0 100px #ff0000;
+        padding: 50px;
+        width: 450px;
+        text-align: center;
+        border-radius: 10px;
+        font-family: monospace;
+        color: white;
+    }
+    .shield-btn {
+        background: rgba(255, 45, 85, 0.1);
+        border: 1px solid #ff2d55;
+        color: #ff2d55;
+        padding: 4px 10px;
+        border-radius: 4px;
+        font-size: 0.6rem;
+        cursor: pointer;
+        font-weight: 800;
+        letter-spacing: 0.5px;
+        transition: all 0.3s;
+        margin-left: 1rem;
+    }
+    .shield-btn:hover { background: #ff2d55; color: white; }
+    .shield-btn.active { border-color: #00d4ff; color: #00d4ff; background: rgba(0, 212, 255, 0.1); }
+</style>
+
+<div id="unauthorized-device-popup">
+    <div style="font-size: 4rem;">🚨</div>
+    <div style="color:#ff0000; font-size:1.8rem; font-weight:900;">BREACH ALERT</div>
+    <div id="popup-device-name" style="margin:20px 0; font-size:1.1rem;">UNKNOWN HARDWARE CONNECTED</div>
+    <button style="background:#ff0000; color:white; border:none; padding:15px 30px; cursor:pointer; font-weight:bold;" onclick="document.getElementById('unauthorized-device-popup').style.display='none'">BYPASS</button>
+</div>
+
+<script>
+    function triggerAlert(name) {
+        document.getElementById('popup-device-name').innerText = name || 'UNAUTHORIZED HW DETECTED';
+        document.getElementById('unauthorized-device-popup').style.display = 'block';
+        alert("SECURITY ALERT: " + name);
+    }
+
+    function enableShield() {
+        if ('usb' in navigator) {
+            navigator.usb.requestDevice({ filters: [] })
+                .then(d => {
+                    const btn = document.getElementById('shield-btn-main');
+                    btn.innerText = "SHIELD: ACTIVE";
+                    btn.classList.add('active');
+                    triggerAlert(d.productName);
+                })
+                .catch(e => {
+                    console.error(e);
+                    alert("Click 'ALLOW' to let the Shield monitor your ports.");
+                });
+        }
+    }
+
+    if ('usb' in navigator) {
+        navigator.usb.onconnect = (e) => triggerAlert(e.device.productName);
+    }
+</script>
+""", unsafe_allow_html=True)
+
 # ── Sticky Navbar ────────────────────────────────────────────────────────────
 st.markdown("""
 <div class="cyber-navbar">
     <div class="nav-left">
         <div class="menu-btn" style="font-size:1.5rem; cursor:pointer; color:var(--accent-cyan); margin-right:1rem;">☰</div>
         <div class="nav-logo">AIRAVAT // XDR</div>
-        <div style="font-size:0.7rem; color:var(--text-secondary); opacity:0.6;">v4.0.5 // SECURE_NODE</div>
+        <button id="shield-btn-main" class="shield-btn" onclick="enableShield()">ENABLE HARDWARE SHIELD</button>
     </div>
     <div class="nav-right">
         <div class="status-indicator">
