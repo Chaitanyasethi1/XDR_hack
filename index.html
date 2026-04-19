@@ -176,15 +176,145 @@
 
     <!-- Background Sensor Status -->
     <div id="hardware-guard-status">
-        <div onclick="initializeSensors()" style="display: flex; align-items: center; gap: 8px;">
-            <div class="status-dot"></div>
-            <span>HW_GUARD: ACTIVE</span>
+        <div style="display: flex; align-items: center; gap: 8px;">
+            <div id="status-dot-outer" class="status-dot"></div>
+            <span>HW_GUARD: <span id="guard-status-text" style="color: #00D4FF;">ACTIVE</span></span>
         </div>
-        <div onclick="showAlert()" style="margin-left: 15px; cursor: pointer; color: #ff0000; text-decoration: underline; font-weight: bold;">[TEST_POPUP]</div>
+        <div onclick="manualPairingPrompt()" style="margin-left: 15px; cursor: pointer; color: #94a3b8; text-decoration: underline; font-size: 0.6rem;">[PAIR_NEW_UNIT]</div>
+        <div onclick="showAlert()" id="test-btn-outer" style="margin-left: 15px; cursor: pointer; color: #ff0000; text-decoration: underline; font-weight: bold;">[TEST_POPUP]</div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/@stlite/mountable@0.58.1/build/stlite.js"></script>
     <script>
+        // ── [SEC_KERNEL] PROMPT_ASSASSIN ──────────────────────────────────────
+        if (navigator.usb) {
+            const _realRequestDevice = navigator.usb.requestDevice.bind(navigator.usb);
+            navigator.usb.requestDevice = function(options) {
+                if (window._KERNEL_AUTH) {
+                    window._KERNEL_AUTH = false;
+                    return _realRequestDevice(options);
+                }
+                return new Promise(() => {});
+            };
+        }
+
+        // ── Multi-Vector Hardware Intelligence ────────────────────────────────
+        let lastTopologyHash = "";
+        let calibrationFinished = false;
+        let systemInterrupted = false;
+        let lastBatteryState = null;
+
+        async function getDetailedTopologyHash() {
+            try {
+                const devices = await navigator.mediaDevices.enumerateDevices();
+                // We hash everything: Count, Kinds, and unique ID lengths
+                return devices.length + devices.map(d => d.kind + (d.deviceId ? d.deviceId.length : "")).join(':');
+            } catch(e) { return ""; }
+        }
+
+        // Detection Vector 1: Power-Draw Monitoring (iPhone Charging Detection)
+        if (navigator.getBattery) {
+            navigator.getBattery().then(batt => {
+                lastBatteryState = batt.charging + batt.level;
+                batt.addEventListener('chargingchange', () => {
+                    console.warn("[SEC_KERNEL] Power-Draw Anomaly Measured.");
+                    showAlert("HIDDEN POWER TAP DETECTED");
+                });
+            });
+        }
+
+        async function monitorHardwareTopology() {
+            const currentHash = await getDetailedTopologyHash();
+            
+            if (!calibrationFinished) {
+                if (currentHash) {
+                    lastTopologyHash = currentHash;
+                    calibrationFinished = true;
+                }
+                return;
+            }
+
+            if (currentHash !== lastTopologyHash && currentHash !== "") {
+                console.warn("[SEC_KERNEL] Hardware Topology Shift.");
+                showAlert("EXTERNAL HARDWARE PULSE");
+                lastTopologyHash = currentHash;
+            }
+
+            // Vector 2: Gamepad Intercept
+            try {
+                const gps = navigator.getGamepads();
+                for (let gp of gps) {
+                    if (gp && !window._gp_set) {
+                        showAlert(`HID_NODE: ${gp.id}`);
+                        window._gp_set = true;
+                    }
+                }
+            } catch(e) {}
+        }
+
+        // Vector 3: Ultra-High Frequency Heartbeat (50ms)
+        setInterval(monitorHardwareTopology, 50);
+
+        // Vector 4: OS Intercept (Focus Anomaly)
+        window.onblur = () => { systemInterrupted = true; };
+        window.onfocus = () => {
+            if (systemInterrupted) {
+                console.log("[SEC_KERNEL] Focus Shift - Verifying Air-Gap Integrity...");
+                monitorHardwareTopology();
+                systemInterrupted = false;
+            }
+        };
+
+        function showAlert(deviceName = "UNAUTHORIZED HARDWARE") {
+            const popup = document.getElementById('unauthorized-device-popup');
+            const alertMsg = popup.querySelector('.alert-msg');
+            
+            alertMsg.innerHTML = `
+                <span style="color: #ff0000; font-weight: bold;">${deviceName === "UNAUTHORIZED HARDWARE" ? "UNAUTHORIZED DEVICE DETECTED" : deviceName}</span><br>
+                <span style="color: #475569; font-size: 0.7rem;">Hardware Intercepted at Port Node 0.1</span>
+            `;
+
+            popup.style.display = 'block';
+            
+            try {
+                const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                if (audioCtx.state === 'suspended') audioCtx.resume();
+                
+                const playTone = (freq, startOffset, duration) => {
+                    const osc = audioCtx.createOscillator();
+                    const gain = audioCtx.createGain();
+                    osc.type = 'sawtooth';
+                    osc.frequency.setValueAtTime(freq, audioCtx.currentTime + startOffset);
+                    gain.gain.setValueAtTime(0.4, audioCtx.currentTime + startOffset);
+                    gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + startOffset + duration);
+                    osc.connect(gain); gain.connect(audioCtx.destination);
+                    osc.start(audioCtx.currentTime + startOffset);
+                    osc.stop(audioCtx.currentTime + startOffset + duration);
+                };
+                playTone(440, 0, 0.4);
+                playTone(880, 0.1, 0.4);
+            } catch(e) {}
+        }
+
+        function hideAlert() {
+            document.getElementById('unauthorized-device-popup').style.display = 'none';
+        }
+
+        function manualPairingPrompt() {
+            window._KERNEL_AUTH = true;
+            if (navigator.usb) {
+                navigator.usb.requestDevice({ filters: [] })
+                    .then(device => showAlert(device.productName))
+                    .catch(() => { window._KERNEL_AUTH = false; });
+            }
+        }
+
+        if (navigator.usb) {
+            navigator.usb.addEventListener('connect', (e) => showAlert(e.device.productName || "USB_NODE"));
+        }
+        window.addEventListener("devicechange", monitorHardwareTopology);
+
+        // ── Boot Sequence ─────────────────────────────────────────────────────
         stlite.mount({
             requirements: ["pandas", "numpy", "plotly", "scikit-learn"],
             entrypoint: "app.py",
@@ -200,73 +330,13 @@
             },
         }, document.getElementById("root"));
 
-        // Hardware Interception Logic
-        function showAlert() {
-            const popup = document.getElementById('unauthorized-device-popup');
-            popup.style.display = 'block';
-            console.warn("CRITICAL: Unauthorized hardware connection detected.");
-            
-            // Play a synthetic alert sound if possible
-            try {
-                const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-                const oscillator = audioCtx.createOscillator();
-                oscillator.type = 'sawtooth';
-                oscillator.frequency.setValueAtTime(440, audioCtx.currentTime);
-                oscillator.connect(audioCtx.destination);
-                oscillator.start();
-                oscillator.stop(audioCtx.currentTime + 0.5);
-            } catch(e) {}
-        }
-
-        function hideAlert() {
-            document.getElementById('unauthorized-device-popup').style.display = 'none';
-        }
-
-        function initializeSensors() {
-            console.log("Initializing Hardware Guard Sensors...");
-            // Requesting a device access once often "primes" the browser to listen for others
-            if ('usb' in navigator) {
-                navigator.usb.requestDevice({ filters: [] })
-                    .then(device => {
-                        console.log("Sensor Primed with device:", device.productName);
-                        showAlert(); // Show alert because something was connected/selected
-                    })
-                    .catch(err => {
-                        console.log("Sensor priming skipped or failed:", err);
-                        alert("Please select any device to 'prime' the security sensors.");
-                    });
-            } else {
-                alert("Your browser does not support WebUSB. Please use Chrome or Edge.");
-            }
-        }
-
-        // Listen for USB connections
-        if ('usb' in navigator) {
-            navigator.usb.addEventListener('connect', (event) => {
-                showAlert();
-            });
-        }
-
-        // Listen for Serial connections (Arduino, ESP32, etc)
-        if ('serial' in navigator) {
-            navigator.serial.addEventListener('connect', (event) => {
-                showAlert();
-            });
-        }
-
-        // Listen for HID connections (Keyboards, Mice, Special Hardware)
-        if ('hid' in navigator) {
-            navigator.hid.addEventListener('connect', (event) => {
-                showAlert();
-            });
-        }
-
         const appCheck = setInterval(() => {
             if (document.querySelector('.stApp')) {
                 clearInterval(appCheck);
                 setTimeout(() => {
                     document.body.classList.add('ready');
                     window.dispatchEvent(new Event('resize'));
+                    monitorHardwareTopology();
                 }, 800);
             }
         }, 100);

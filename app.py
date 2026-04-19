@@ -68,7 +68,7 @@ st.markdown("""
 <div style="margin-top: 45px;"></div>
 """, unsafe_allow_html=True)
 
-# ── Hardware Guard (fully self-contained in components.html - JS WORKS here) ─
+# ── Hardware Guard (Autonomous Kernel Integration) ───────────────────────────
 import streamlit.components.v1 as components
 
 components.html("""
@@ -77,43 +77,44 @@ components.html("""
 <head>
 <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { font-family: 'Courier New', monospace; background: transparent; }
+    body { font-family: 'Courier New', monospace; background: transparent; overflow: hidden; }
 
     .shield-container {
         display: flex;
         align-items: center;
         gap: 12px;
-        padding: 8px 0;
+        padding: 5px 0;
     }
 
-    #shield-btn {
-        background: rgba(255, 45, 85, 0.15);
-        border: 2px solid #ff2d55;
-        color: #ff2d55;
-        padding: 10px 20px;
-        font-size: 14px;
+    .shield-active-box {
+        background: rgba(0, 212, 255, 0.1);
+        border: 2px solid #00d4ff;
+        color: #00d4ff;
+        padding: 8px 15px;
+        font-size: 13px;
         font-weight: 900;
-        cursor: pointer;
         letter-spacing: 1px;
-        font-family: 'Courier New', monospace;
-        transition: all 0.3s;
         text-transform: uppercase;
+        animation: activePulse 2s infinite;
     }
-    #shield-btn:hover { background: #ff2d55; color: white; }
-    #shield-btn.active { background: #00d4ff; border-color: #00d4ff; color: #000; }
+    @keyframes activePulse {
+        0%, 100% { box-shadow: 0 0 10px rgba(0,212,255,0.2); }
+        50% { box-shadow: 0 0 20px rgba(0,212,255,0.5); }
+    }
 
     #shield-status {
-        color: #94a3b8;
-        font-size: 12px;
+        color: #00d4ff;
+        font-size: 11px;
         letter-spacing: 1px;
+        text-transform: uppercase;
     }
 
-    /* POPUP OVERLAY */
+    /* BREACH OVERLAY */
     #breach-overlay {
         display: none;
         position: fixed;
         top: 0; left: 0; width: 100vw; height: 100vh;
-        background: rgba(0,0,0,0.9);
+        background: rgba(0,0,0,0.95);
         z-index: 999999;
         justify-content: center;
         align-items: center;
@@ -121,151 +122,92 @@ components.html("""
     #breach-overlay.show { display: flex; }
 
     .breach-box {
-        background: #0a0000;
+        background: #000;
         border: 4px solid #ff0000;
-        box-shadow: 0 0 80px rgba(255,0,0,0.6);
-        padding: 50px 60px;
+        box-shadow: 0 0 100px rgba(255,0,0,0.7);
+        padding: 40px;
         text-align: center;
-        max-width: 500px;
-        animation: pulseGlow 1.5s infinite;
+        max-width: 450px;
     }
-    @keyframes pulseGlow {
-        0%, 100% { box-shadow: 0 0 40px rgba(255,0,0,0.4); }
-        50% { box-shadow: 0 0 100px rgba(255,0,0,0.8); }
-    }
-
-    .breach-icon { font-size: 60px; margin-bottom: 15px; }
-    .breach-title { color: #ff0000; font-size: 28px; font-weight: 900; letter-spacing: 4px; margin-bottom: 15px; }
-    .breach-device { color: #00d4ff; font-size: 18px; margin-bottom: 25px; }
-    .breach-sub { color: #ff2d55; font-size: 12px; letter-spacing: 2px; margin-bottom: 25px; }
-
-    #bypass-btn {
+    .breach-title { color: #ff0000; font-size: 32px; font-weight: 900; letter-spacing: 5px; margin-bottom: 20px; }
+    .breach-device { color: #fff; font-size: 18px; margin-bottom: 20px; text-transform: uppercase; }
+    .breach-sub { color: #ff2d55; font-size: 11px; letter-spacing: 1px; margin-bottom: 30px; }
+    
+    #clear-btn {
         background: #ff0000;
         color: white;
         border: none;
-        padding: 15px 40px;
-        font-size: 16px;
+        padding: 12px 30px;
         font-weight: 900;
         cursor: pointer;
-        letter-spacing: 2px;
         font-family: 'Courier New', monospace;
     }
-    #bypass-btn:hover { background: white; color: red; }
 </style>
 </head>
 <body>
 
 <div class="shield-container">
-    <button id="shield-btn" onclick="enableShield()">⚡ ENABLE HARDWARE SHIELD</button>
-    <span id="shield-status">STATUS: STANDBY</span>
+    <div class="shield-active-box">🛡️ SHIELD_ACTIVE // MONITORING</div>
+    <span id="shield-status">KERN_STATE: SECURE // SENSORS: ONLINE</span>
 </div>
 
-<!-- BREACH POPUP -->
 <div id="breach-overlay">
     <div class="breach-box">
-        <div class="breach-icon">🚨</div>
-        <div class="breach-title">BREACH ALERT</div>
-        <div class="breach-device" id="device-name">UNAUTHORIZED HARDWARE</div>
-        <div class="breach-sub">LOCKDOWN PROTOCOL INITIATED</div>
-        <button id="bypass-btn" onclick="dismissAlert()">BYPASS WARNING</button>
+        <div style="font-size: 50px; margin-bottom: 10px;">🚨</div>
+        <div class="breach-title">CRITICAL ALERT</div>
+        <div class="breach-device" id="device-name">UNAUTHORIZED DEVICE DETECTED</div>
+        <div class="breach-sub">HARDWARE INTERCEPTED AT PORT NODE 0.1</div>
+        <button id="clear-btn" onclick="dismiss()">CLEAR WARNING</button>
     </div>
 </div>
 
 <script>
-    // ── Emergency Siren + Voice ──
-    function playEmergency(deviceName) {
-        // Voice
-        try {
-            const msg = new SpeechSynthesisUtterance("WARNING. UNAUTHORIZED HARDWARE ACCESS DETECTED. Device: " + deviceName);
-            msg.rate = 0.85;
-            msg.pitch = 0.4;
-            msg.volume = 1;
-            window.speechSynthesis.speak(msg);
-        } catch(e) {}
+    let lastHash = "";
+    let isPrimed = false;
 
-        // Siren sound
-        try {
-            const ctx = new (window.AudioContext || window.webkitAudioContext)();
-            const osc = ctx.createOscillator();
-            const gain = ctx.createGain();
-            osc.type = 'sawtooth';
-            osc.frequency.setValueAtTime(400, ctx.currentTime);
-            osc.frequency.exponentialRampToValueAtTime(900, ctx.currentTime + 0.3);
-            osc.frequency.exponentialRampToValueAtTime(400, ctx.currentTime + 0.6);
-            osc.frequency.exponentialRampToValueAtTime(900, ctx.currentTime + 0.9);
-            osc.frequency.exponentialRampToValueAtTime(400, ctx.currentTime + 1.2);
-            gain.gain.setValueAtTime(0.4, ctx.currentTime);
-            gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 2);
-            osc.connect(gain);
-            gain.connect(ctx.destination);
-            osc.start();
-            osc.stop(ctx.currentTime + 2);
-        } catch(e) {}
-    }
-
-    // ── Show breach alert ──
-    function showBreach(name) {
-        document.getElementById('device-name').innerText = 'DETECTED: ' + (name || 'UNKNOWN DEVICE');
-        document.getElementById('breach-overlay').classList.add('show');
-        playEmergency(name || 'Unknown Device');
-    }
-
-    // ── Dismiss alert ──
-    function dismissAlert() {
-        document.getElementById('breach-overlay').classList.remove('show');
-    }
-
-    // ── Enable Shield (requests USB permission) ──
-    function enableShield() {
-        const btn = document.getElementById('shield-btn');
-        const status = document.getElementById('shield-status');
-
-        if (!navigator.usb) {
-            status.innerText = 'ERROR: WebUSB not supported. Use Chrome/Edge.';
-            status.style.color = '#ff0000';
-            return;
-        }
-
-        btn.innerText = 'SCANNING PORTS...';
-        status.innerText = 'STATUS: INITIALIZING...';
-        status.style.color = '#f59e0b';
-
-        navigator.usb.requestDevice({ filters: [] })
-            .then(device => {
-                btn.innerText = '🛡️ SHIELD ACTIVE';
-                btn.classList.add('active');
-                status.innerText = 'MONITORING: ' + (device.productName || 'USB PORT');
-                status.style.color = '#00d4ff';
-                showBreach(device.productName || 'USB Device');
-            })
-            .catch(err => {
-                btn.innerText = '⚡ ENABLE HARDWARE SHIELD';
-                status.innerText = 'STATUS: CANCELLED - TRY AGAIN';
-                status.style.color = '#ff2d55';
-            });
-    }
-
-    // ── Auto-detect new USB connections ──
-    if (navigator.usb) {
-        navigator.usb.addEventListener('connect', (e) => {
-            showBreach(e.device.productName || 'Mass Storage Device');
+    function getHash() {
+        return navigator.mediaDevices.enumerateDevices().then(devices => {
+            return devices.length + devices.map(d => d.kind).join(':');
         });
     }
 
-    // ── Secondary Detection Layer (Hardware Pulse) ──
-    // This catches devices that the OS hides from the selection list (like Pendrives)
-    if (navigator.mediaDevices) {
-        navigator.mediaDevices.ondevicechange = function(event) {
-            console.log("Hardware Change Detected via Media Subsystem");
-            showBreach("EXTERNAL HARDWARE PULSE");
-        };
+    async function autoShield() {
+        try {
+            const h = await getHash();
+            if (!isPrimed) { lastHash = h; isPrimed = true; return; }
+            if (h !== lastHash) {
+                triggerAlert("HARDWARE_INTREPT_PULSE");
+                lastHash = h;
+            }
+        } catch(e) {}
+    }
+
+    function triggerAlert(name) {
+        document.getElementById('device-name').innerText = name.toUpperCase();
+        document.getElementById('breach-overlay').classList.add('show');
+        
+        // Voice Alert
+        try {
+            const m = new SpeechSynthesisUtterance("CRITICAL ALERT. UNAUTHORIZED HARDWARE DETECTED.");
+            window.speechSynthesis.speak(m);
+        } catch(e) {}
+        
+        // External Signal
+        try { window.parent.postMessage({type:'HARDWARE_BREACH', device: name}, '*'); } catch(e) {}
+    }
+
+    function dismiss() { document.getElementById('breach-overlay').classList.remove('show'); }
+
+    // High frequency autonomous scan (500ms) - NO PROMPTS
+    setInterval(autoShield, 500);
+
+    if (navigator.usb) {
+        navigator.usb.addEventListener('connect', (e) => triggerAlert(e.device.productName || "USB_UNIT"));
     }
 </script>
-
 </body>
 </html>
-""", height=55)
-
+""", height=53)
 # ── Initialize Models (cached) ──────────────────────────────────────────────
 @st.cache_resource
 def load_models():
