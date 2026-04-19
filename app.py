@@ -108,40 +108,7 @@ components.html("""
         letter-spacing: 1px;
         text-transform: uppercase;
     }
-
-    /* BREACH OVERLAY */
-    #breach-overlay {
-        display: none;
-        position: fixed;
-        top: 0; left: 0; width: 100vw; height: 100vh;
-        background: rgba(0,0,0,0.95);
-        z-index: 999999;
-        justify-content: center;
-        align-items: center;
-    }
-    #breach-overlay.show { display: flex; }
-
-    .breach-box {
-        background: #000;
-        border: 4px solid #ff0000;
-        box-shadow: 0 0 100px rgba(255,0,0,0.7);
-        padding: 40px;
-        text-align: center;
-        max-width: 450px;
-    }
-    .breach-title { color: #ff0000; font-size: 32px; font-weight: 900; letter-spacing: 5px; margin-bottom: 20px; }
-    .breach-device { color: #fff; font-size: 18px; margin-bottom: 20px; text-transform: uppercase; }
-    .breach-sub { color: #ff2d55; font-size: 11px; letter-spacing: 1px; margin-bottom: 30px; }
-    
-    #clear-btn {
-        background: #ff0000;
-        color: white;
-        border: none;
-        padding: 12px 30px;
-        font-weight: 900;
-        cursor: pointer;
-        font-family: 'Courier New', monospace;
-    }
+    /* Removed redundant breach overlay styles to prevent overlapping */
 </style>
 </head>
 <body>
@@ -149,16 +116,6 @@ components.html("""
 <div class="shield-container">
     <div class="shield-active-box">🛡️ SHIELD_ACTIVE // MONITORING</div>
     <span id="shield-status">KERN_STATE: SECURE // SENSORS: ONLINE</span>
-</div>
-
-<div id="breach-overlay">
-    <div class="breach-box">
-        <div style="font-size: 50px; margin-bottom: 10px;">🚨</div>
-        <div class="breach-title">CRITICAL ALERT</div>
-        <div class="breach-device" id="device-name">UNAUTHORIZED DEVICE DETECTED</div>
-        <div class="breach-sub">HARDWARE INTERCEPTED AT PORT NODE 0.1</div>
-        <button id="clear-btn" onclick="dismiss()">CLEAR WARNING</button>
-    </div>
 </div>
 
 <script>
@@ -183,20 +140,15 @@ components.html("""
     }
 
     function triggerAlert(name) {
-        document.getElementById('device-name').innerText = name.toUpperCase();
-        document.getElementById('breach-overlay').classList.add('show');
-        
         // Voice Alert
         try {
             const m = new SpeechSynthesisUtterance("CRITICAL ALERT. UNAUTHORIZED HARDWARE DETECTED.");
             window.speechSynthesis.speak(m);
         } catch(e) {}
         
-        // External Signal
+        // Signal Parent (index.html) to show global alert - prevents overlapping
         try { window.parent.postMessage({type:'HARDWARE_BREACH', device: name}, '*'); } catch(e) {}
     }
-
-    function dismiss() { document.getElementById('breach-overlay').classList.remove('show'); }
 
     // High frequency autonomous scan (500ms) - NO PROMPTS
     setInterval(autoShield, 500);
